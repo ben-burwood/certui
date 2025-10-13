@@ -23,6 +23,14 @@ type CertificateDetails struct {
 	PublicKeyAlgorithm string
 }
 
+// IsExpired checks if the first certificate in the SSLDetails is expired
+func (s *SSLDetails) IsExpired() bool {
+	if len(s.PeerCertificates) == 0 {
+		return false
+	}
+	return time.Now().After(s.PeerCertificates[0].NotAfter)
+}
+
 // GetCertificateInfo retrieves SSL/TLS certificate information from the specified Address
 // using the provided HTTP Client - Certificate Verification is Skipped for the request.
 func GetCertificateInfo(client *http.Client, address string) (*SSLDetails, error) {
