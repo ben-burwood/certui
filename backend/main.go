@@ -21,7 +21,7 @@ func main() {
 	mux.HandleFunc("GET /endpoint", api.EndpointHandler(cfg))
 	mux.HandleFunc("GET /endpoints", api.AllEndpointsHandler(cfg))
 
-	http.ListenAndServe("[::]:8080", mux)
+	http.ListenAndServe("[::]:8080", api.CORSMiddleware(mux))
 }
 
 // loadConfiguration loads the configuration from the path specified in the CERTIFICATE_STATUS_PAGE_CONFIG_PATH environment variable
