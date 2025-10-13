@@ -3,7 +3,6 @@ package main
 import (
 	"certificate-status-page/internal/api"
 	"certificate-status-page/internal/config"
-	"fmt"
 	"net/http"
 	"os"
 )
@@ -22,8 +21,7 @@ func main() {
 	mux.HandleFunc("GET /endpoint", api.EndpointHandler(cfg))
 	mux.HandleFunc("GET /endpoints", api.AllEndpointsHandler(cfg))
 
-	listenAddr := fmt.Sprintf("[::]:%d", cfg.Web.Port)
-	http.ListenAndServe(listenAddr, mux)
+	http.ListenAndServe("[::]:8080", mux)
 }
 
 // loadConfiguration loads the configuration from the path specified in the CERTIFICATE_STATUS_PAGE_CONFIG_PATH environment variable

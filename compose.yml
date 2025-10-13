@@ -1,0 +1,11 @@
+services:
+  certificate-status-page:
+    container_name: certificate-status-page
+    build: .
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    environment:
+      - CERTIFICATE_STATUS_PAGE_CONFIG_PATH=/config/config.yml
+    volumes:
+      - ./config:/config:ro

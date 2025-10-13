@@ -17,8 +17,6 @@ const (
 	// DefaultConfigurationFilePath is the default path that will be used to search for the configuration file
 	// if a custom path isn't configured through the CERT_STATUS_CONFIG_PATH environment variable
 	DefaultConfigurationFilePath = "config/config.yaml"
-
-	DefaultPort = 8080
 )
 
 var (
@@ -29,19 +27,14 @@ var (
 	ErrNoEndpointsInConfig = errors.New("no endpoints configured in configuration file")
 )
 
-type WebConfig struct {
-	Port int `yaml:"port,omitempty"`
-}
-
 type UiConfig struct {
 	Title       string `yaml:"title,omitempty"`
 	Description string `yaml:"description,omitempty"`
 }
 
 type Config struct {
-	Web       WebConfig `yaml:"web,omitempty"`
-	Ui        UiConfig  `yaml:"ui,omitempty"`
-	Endpoints []string  `yaml:"endpoints"`
+	Ui        UiConfig `yaml:"ui,omitempty"`
+	Endpoints []string `yaml:"endpoints"`
 }
 
 // LoadConfig loads the configuration from the specified path. If the path is a directory, all .yml and .yaml files
@@ -145,10 +138,6 @@ func parseAndValidateConfigBytes(yamlBytes []byte) (config *Config, err error) {
 	// Check if the configuration file at least has Endpoints configured
 	if config == nil || (len(config.Endpoints) == 0) {
 		err = ErrNoEndpointsInConfig
-	}
-
-	if config.Web.Port == 0 {
-		config.Web.Port = DefaultPort
 	}
 
 	return
