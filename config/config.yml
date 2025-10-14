@@ -1,2 +1,4 @@
 endpoints:
 - https://www.google.com
+- https://www.github.com
+- https://expired.badssl.com
