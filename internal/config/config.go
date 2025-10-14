@@ -16,7 +16,7 @@ import (
 const (
 	// DefaultConfigurationFilePath is the default path that will be used to search for the configuration file
 	// if a custom path isn't configured through the CERTUI_CONFIG_PATH environment variable
-	DefaultConfigurationFilePath = "config/config.yaml"
+	DefaultConfigurationFilePath = "config/config.yml"
 )
 
 var (
