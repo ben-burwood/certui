@@ -27,13 +27,7 @@ var (
 	ErrNoEndpointsInConfig = errors.New("no endpoints configured in configuration file")
 )
 
-type UiConfig struct {
-	Title       string `yaml:"title,omitempty"`
-	Description string `yaml:"description,omitempty"`
-}
-
 type Config struct {
-	Ui        UiConfig `yaml:"ui,omitempty"`
 	Endpoints []string `yaml:"endpoints"`
 }
 
