@@ -10,7 +10,10 @@ COPY frontend/. .
 
 RUN npm run build
 
-FROM golang:latest AS build-go
+FROM --platform=$BUILDPLATFORM golang:alpine AS build-go
+
+ARG TARGETOS
+ARG TARGETARCH
 
 WORKDIR /app
 
@@ -20,15 +23,15 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /entrypoint
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /server
 
 FROM scratch
 
 WORKDIR /
 
-COPY --from=build-go /entrypoint /entrypoint
+COPY --from=build-go /server /server
 COPY --from=build-vue /app/frontend/dist /frontend/dist
 
 EXPOSE 8080
 
-ENTRYPOINT ["/entrypoint"]
+ENTRYPOINT ["/server"]
