@@ -1,0 +1,10 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Circle Badge -->
+  <circle cx="32" cy="24" r="12" fill="white" stroke="#2ECC71" stroke-width="2"/>
+
+  <!-- Ribbon Tails -->
+  <path d="M26 36 L24 52 L32 46 L40 52 L38 36 Z" fill="white" stroke="#2ECC71" stroke-width="2"/>
+
+  <!-- Checkmark -->
+  <path d="M26 24 L30 28 L38 20" stroke="#2ECC71" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

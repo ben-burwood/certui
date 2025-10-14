@@ -1,14 +1,14 @@
 package main
 
 import (
-	"certificate-status-page/internal/api"
-	"certificate-status-page/internal/config"
+	"certui/internal/api"
+	"certui/internal/config"
 	"net/http"
 	"os"
 )
 
 const (
-	CertificateStatusPageConfigPathEnvVar = "CERTIFICATE_STATUS_PAGE_CONFIG_PATH"
+	CertuiConfigPathEnvVar = "CERTUI_CONFIG_PATH"
 )
 
 func main() {
@@ -18,14 +18,17 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /endpoint", api.EndpointHandler(cfg))
-	mux.HandleFunc("GET /endpoints", api.AllEndpointsHandler(cfg))
+	mux.HandleFunc("GET /api/endpoint", api.EndpointHandler(cfg))
+	mux.HandleFunc("GET /api/endpoints", api.AllEndpointsHandler(cfg))
+
+	// Serve Static Frontend
+	mux.Handle("/", http.FileServer(http.Dir("./frontend/dist")))
 
 	http.ListenAndServe("[::]:8080", api.CORSMiddleware(mux))
 }
 
-// loadConfiguration loads the configuration from the path specified in the CERTIFICATE_STATUS_PAGE_CONFIG_PATH environment variable
+// loadConfiguration loads the configuration from the path specified in the CERTUI_CONFIG_PATH environment variable
 func loadConfiguration() (*config.Config, error) {
-	configPath := os.Getenv(CertificateStatusPageConfigPathEnvVar)
+	configPath := os.Getenv(CertuiConfigPathEnvVar)
 	return config.LoadConfig(configPath)
 }

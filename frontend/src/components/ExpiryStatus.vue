@@ -18,7 +18,7 @@ const props = defineProps<{
 const daysRemainingLimit = props.daysRemainingLimit ?? 30;
 
 const daysRemaining = computed(() => {
-    const notAfter = props.ssl.PeerCertificates[0].NotAfter;
+    const notAfter = props.ssl?.PeerCertificates?.[0]?.NotAfter ?? '';
     return daysUntil(notAfter, new Date());
 });
 </script>

@@ -15,7 +15,7 @@ import (
 
 const (
 	// DefaultConfigurationFilePath is the default path that will be used to search for the configuration file
-	// if a custom path isn't configured through the CERT_STATUS_CONFIG_PATH environment variable
+	// if a custom path isn't configured through the CERTUI_CONFIG_PATH environment variable
 	DefaultConfigurationFilePath = "config/config.yaml"
 )
 
@@ -120,15 +120,15 @@ func walkConfigDir(path string, fn fs.WalkDirFunc) error {
 	})
 }
 
-// parseAndValidateConfigBytes parses a Dashboard Configuration file into a Config struct and validates its parameters
+// parseAndValidateConfigBytes parses a Certui Configuration file into a Config struct and validates its parameters
 func parseAndValidateConfigBytes(yamlBytes []byte) (config *Config, err error) {
-	// Replace $$ with __CERT_STATUS_LITERAL_DOLLAR_SIGN__ to prevent os.ExpandEnv from treating "$$" as if it was an
-	// environment variable. This allows Dashboard to support literal "$" in the configuration file.
-	yamlBytes = []byte(strings.ReplaceAll(string(yamlBytes), "$$", "__CERT_STATUS_LITERAL_DOLLAR_SIGN__"))
+	// Replace $$ with __CERTUI_LITERAL_DOLLAR_SIGN__ to prevent os.ExpandEnv from treating "$$" as if it was an
+	// environment variable. This allows Certui to support literal "$" in the configuration file.
+	yamlBytes = []byte(strings.ReplaceAll(string(yamlBytes), "$$", "__CERTUI_LITERAL_DOLLAR_SIGN__"))
 	// Expand environment variables
 	yamlBytes = []byte(os.ExpandEnv(string(yamlBytes)))
-	// Replace __CERT_STATUS_LITERAL_DOLLAR_SIGN__ with "$" to restore the literal "$" in the configuration file
-	yamlBytes = []byte(strings.ReplaceAll(string(yamlBytes), "__CERT_STATUS_LITERAL_DOLLAR_SIGN__", "$"))
+	// Replace __CERTUI_LITERAL_DOLLAR_SIGN__ with "$" to restore the literal "$" in the configuration file
+	yamlBytes = []byte(strings.ReplaceAll(string(yamlBytes), "__CERTUI_LITERAL_DOLLAR_SIGN__", "$"))
 
 	// Parse configuration file
 	if err = yaml.Unmarshal(yamlBytes, &config); err != nil {

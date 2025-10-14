@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"certificate-status-page/internal/certificate"
-	"certificate-status-page/internal/config"
+	"certui/internal/certificate"
+	"certui/internal/config"
 )
 
 type SSLDetailsWithExpired struct {

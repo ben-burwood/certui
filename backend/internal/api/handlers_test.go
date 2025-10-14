@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"certificate-status-page/internal/certificate"
-	"certificate-status-page/internal/config"
+	"certui/internal/certificate"
+	"certui/internal/config"
 )
 
 func TestEndpointHandler_Success(t *testing.T) {

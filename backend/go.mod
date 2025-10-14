@@ -1,4 +1,4 @@
-module certificate-status-page
+module certui
 
 go 1.25.1
 
