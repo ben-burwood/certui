@@ -1,27 +1,34 @@
-FROM golang:latest AS build
+FROM node:24 AS build-vue
 
-# Set working directory to /app/backend for Go build context
-WORKDIR /app/backend
+WORKDIR /app/frontend
 
-# Copy go.mod and go.sum for dependency resolution
-COPY backend/go.mod backend/go.sum ./
+COPY frontend/package*.json ./
+
+RUN npm install
+
+COPY frontend/. .
+
+RUN npm run build
+
+FROM golang:latest AS build-go
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
 
 RUN go mod download
 
-# Copy the backend source code
-COPY backend/. .
+COPY . .
 
-# Build the Go binary
-RUN CGO_ENABLED=0 GOOS=linux go build -o /entrypoint
+RUN go build -o /entrypoint
 
-FROM gcr.io/distroless/static-debian11 AS release
+FROM alpine:3.22
 
 WORKDIR /
 
-COPY --from=build /entrypoint /entrypoint
+COPY --from=build-go /entrypoint /entrypoint
+COPY --from=build-vue /app/frontend/dist /frontend/dist
 
 EXPOSE 8080
-
-USER nonroot:nonroot
 
 ENTRYPOINT ["/entrypoint"]
