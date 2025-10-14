@@ -20,9 +20,9 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o /entrypoint
+RUN CGO_ENABLED=0 GOOS=linux go build -o /entrypoint
 
-FROM alpine:3.22
+FROM gcr.io/distroless/static-debian11
 
 WORKDIR /
 
