@@ -5,7 +5,7 @@
       <a class="text-2xl font-bold ml-6">CertUI</a>
     </div>
 
-    <div class="p-5 flex-1">
+    <div class="p-5 flex-1 bg-gray-50">
       <div class="my-4" v-if="endpointsData.length" v-for="(endpointData, index) in endpointsData" :key="index">
         <div v-if="endpointData.ssl" class="collapse collapse-arrow bg-base-100 border border-base-300">
           <input type="radio" name="certificate-accordion" />
@@ -29,7 +29,7 @@
 
     <!-- <SettingsToggle /> -->
 
-    <footer class="p-4 bg-gray-100 flex items-center justify-between">
+    <footer class="p-4 bg-gray-200 flex items-center justify-between">
       <aside class="text-left">
         Powered by <a href="https://github.com/ben-burwood/certui" target="_blank" class="font-medium text-green-800 hover:text-green-600">CertUI</a>
       </aside>

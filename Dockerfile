@@ -1,4 +1,4 @@
-FROM node:24 AS build-vue
+FROM node:latest AS build-vue
 
 WORKDIR /app/frontend
 
@@ -22,7 +22,7 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o /entrypoint
 
-FROM gcr.io/distroless/static-debian11
+FROM scratch
 
 WORKDIR /
 
