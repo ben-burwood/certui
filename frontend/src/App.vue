@@ -1,33 +1,34 @@
 <template>
   <div class="min-h-screen w-full flex flex-col">
     <div class="navbar bg-base-100 shadow-sm">
-      <img src="/logo.svg" alt="CertUI Logo" class="h-15 ml-6" />
-      <a class="text-2xl font-bold ml-6">CertUI</a>
+      <div class="flex items-center gap-4 lg:ml-20">
+        <img src="/logo.svg" alt="CertUI Logo" class="h-15" />
+        <span class="text-2xl font-bold">CertUI</span>
+      </div>
     </div>
 
     <div class="p-5 flex-1 bg-gray-50">
-      <div class="my-4" v-if="endpointsData.length" v-for="(endpointData, index) in endpointsData" :key="index">
-        <div v-if="endpointData.ssl" class="collapse collapse-arrow bg-base-100 border border-base-300">
-          <input type="radio" name="certificate-accordion" />
-          <!-- <input type="checkbox" /> -->
-          <div class="collapse-title font-semibold">
-            {{ endpointData.endpoint }}
-            <ExpiryStatus class="ml-4" :ssl="endpointData.ssl" />
-          </div>
-          <div class="collapse-content">
-            <EndpointCard
-              class="p-5"
-              :endpoint="endpointData.endpoint"
-              :ssl="endpointData.ssl" />
+      <div class="max-w-6xl mx-auto">
+        <div class="my-4" v-if="endpointsData.length" v-for="(endpointData, index) in endpointsData" :key="index">
+          <div v-if="endpointData.ssl" class="collapse collapse-arrow bg-base-100 border border-base-300">
+            <input type="radio" name="certificate-accordion" />
+            <div class="collapse-title font-semibold">
+              {{ endpointData.endpoint }}
+              <ExpiryStatus class="ml-4" :ssl="endpointData.ssl" :daysRemainingLimit="14" />
+            </div>
+            <div class="collapse-content">
+              <EndpointCard
+                class="p-5"
+                :endpoint="endpointData.endpoint"
+                :ssl="endpointData.ssl" />
+            </div>
           </div>
         </div>
-      </div>
-      <div v-else class="text-center text-gray-500 italic">
-        No endpoints.
+        <div v-else class="text-center text-gray-500 italic">
+          No endpoints.
+        </div>
       </div>
     </div>
-
-    <!-- <SettingsToggle /> -->
 
     <footer class="p-4 bg-gray-200 flex items-center justify-between">
       <aside class="text-left">
