@@ -7,7 +7,7 @@
             </div>
         </div>
 
-        <div class="p-5 flex-1 bg-gray-50">
+        <div class="p-5 flex-1 bg-base-200">
             <div class="max-w-6xl mx-auto">
                 <div
                     class="my-4"
@@ -37,13 +37,11 @@
                         </div>
                     </div>
                 </div>
-                <div v-else class="text-center text-gray-500 italic">
-                    No endpoints.
-                </div>
+                <div v-else class="text-center italic">No endpoints.</div>
             </div>
         </div>
 
-        <footer class="p-4 bg-gray-200 flex items-center justify-between">
+        <footer class="p-4 bg-base-300 flex items-center justify-between">
             <aside class="text-left">
                 Powered by
                 <a
