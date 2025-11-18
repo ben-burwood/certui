@@ -1,5 +1,6 @@
 <template>
     <div class="min-h-screen w-full flex flex-col">
+        <!-- HEADER -->
         <div class="navbar bg-base-100 shadow-sm">
             <div class="flex items-center gap-4 lg:ml-20">
                 <img src="/logo.svg" alt="CertUI Logo" class="h-15" />
@@ -7,12 +8,12 @@
             </div>
         </div>
 
+        <!-- BODY -->
         <div class="p-5 flex-1 bg-base-200">
-            <div class="max-w-6xl mx-auto">
+            <div class="max-w-6xl mx-auto" v-if="endpointsData.length">
                 <details
-                    class="my-4 collapse collapse-arrow bg-base-100 border border-base-300"
+                    class="my-4 collapse collapse-arrow bg-base-100"
                     name="certificate-accordion"
-                    v-if="endpointsData.length"
                     v-for="(endpointData, index) in endpointsData"
                     :key="index"
                 >
@@ -33,10 +34,14 @@
                         />
                     </div>
                 </details>
-                <div v-else class="text-center italic">No endpoints.</div>
             </div>
+            <div v-else-if="loading" class="text-center mt-10">
+                <span class="loading loading-dots loading-xl"></span>
+            </div>
+            <div v-else class="text-center italic">No endpoints.</div>
         </div>
 
+        <!-- FOOTER -->
         <footer class="p-4 bg-base-300 flex items-center justify-between">
             <aside class="text-left">
                 <div class="flex items-center">
@@ -85,7 +90,10 @@ import ExpiryStatus from "./components/ExpiryStatus.vue";
 
 const endpointsData = ref<{ endpoint: string; ssl: SSLDetails | null }[]>([]);
 
+const loading = ref(false);
+
 onMounted(async () => {
+    loading.value = true;
     try {
         const res = await fetch(`${SERVER_URL}/endpoints`);
         const data: Record<string, SSLDetails | null> = await res.json();
@@ -96,6 +104,8 @@ onMounted(async () => {
     } catch (e) {
         console.error("Failed to fetch endpoints:", e);
         endpointsData.value = [];
+    } finally {
+        loading.value = false;
     }
 });
 </script>
