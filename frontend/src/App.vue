@@ -41,8 +41,14 @@
                                 Domain Can't Resolve
                             </div>
                             <ExpiryStatus
-                                v-if="endpointData.details?.SSL"
-                                :ssl="endpointData.details.SSL"
+                                v-if="
+                                    endpointData.details?.SSL
+                                        ?.PeerCertificates?.[0]?.NotAfter
+                                "
+                                :notAfter="
+                                    endpointData.details.SSL
+                                        ?.PeerCertificates?.[0]?.NotAfter
+                                "
                                 :daysRemainingLimit="14"
                             />
                         </div>
