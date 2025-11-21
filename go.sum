@@ -1,7 +1,7 @@
 github.com/TwiN/deepmerge v0.2.2 h1:FUG9QMIYg/j2aQyPPhA3XTFJwXSNHI/swaR4Lbyxwg4=
 github.com/TwiN/deepmerge v0.2.2/go.mod h1:4OHvjV3pPNJCJZBHswYAwk6rxiD8h8YZ+9cPo7nu4oI=
-github.com/google/yamlfmt v0.17.2 h1:TkXxhmj7dnpmOnlWGOXog92Gs6MWcTZqnf3kuyp8yFQ=
-github.com/google/yamlfmt v0.17.2/go.mod h1:gs0UEklJOYkUJ+OOCG0hg9n+DzucKDPlJElTUasVNK8=
+github.com/google/yamlfmt v0.20.0 h1:EfMuMFEZGnXPn2NY+KgJTH9sNs6P+am/Of6IwE2K6P8=
+github.com/google/yamlfmt v0.20.0/go.mod h1:gs0UEklJOYkUJ+OOCG0hg9n+DzucKDPlJElTUasVNK8=
 github.com/likexian/gokit v0.25.15 h1:QjospM1eXhdMMHwZRpMKKAHY/Wig9wgcREmLtf9NslY=
 github.com/likexian/gokit v0.25.15/go.mod h1:S2QisdsxLEHWeD/XI0QMVeggp+jbxYqUxMvSBil7MRg=
 github.com/likexian/whois v1.15.6 h1:hizngFHJTNQDlhwhU+FEGyPGxy8bRnf25gHDNrSB4Ag=

@@ -4,7 +4,7 @@ go 1.25.1
 
 require (
 	github.com/TwiN/deepmerge v0.2.2
-	github.com/google/yamlfmt v0.17.2
+	github.com/google/yamlfmt v0.20.0
 	github.com/likexian/whois v1.15.6
 	github.com/likexian/whois-parser v1.24.20
 	golang.org/x/net v0.35.0
