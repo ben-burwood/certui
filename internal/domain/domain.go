@@ -2,24 +2,35 @@ package domain
 
 import (
 	"net"
+	"strings"
 )
 
 type Domain string
 
-type HostAddress string
+type Address string
+
+// stripHttpPrefix removes the http/https prefix from a domain string
+func (d Domain) stripHttpPrefix() Domain {
+	dStr := string(d)
+	dStr = strings.TrimPrefix(dStr, "http://")
+	dStr = strings.TrimPrefix(dStr, "https://")
+	return Domain(dStr)
+}
 
 // getDomainHostAddress returns the Resolved IP Address of a Domain
-func getDomainHostAddress(domain Domain) (HostAddress, error) {
+func getDomainHostAddress(domain Domain) (Address, error) {
+	domain = domain.stripHttpPrefix()
+
 	ips, err := net.LookupHost(string(domain))
 	if err != nil {
 		return "", err
 	}
-	return HostAddress(ips[0]), nil
+	return Address(ips[0]), nil
 }
 
 type DomainDetails struct {
 	Domain      Domain
-	HostAddress HostAddress
+	HostAddress Address
 	Resolves    bool
 }
 
