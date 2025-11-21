@@ -14,11 +14,4 @@ export interface SSLDetails {
   DidResume: boolean;
   CipherSuite: number;
   PeerCertificates: CertificateDetails[];
-  IsExpired: boolean;
-}
-
-export interface ExpiryCountdown {
-  days: number;
-  hours: number;
-  minutes: number;
 }

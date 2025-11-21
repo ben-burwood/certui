@@ -17,20 +17,41 @@
                     v-for="(endpointData, index) in endpointsData"
                     :key="index"
                 >
-                    <summary class="collapse-title font-semibold">
-                        {{ endpointData.endpoint }}
-                        <ExpiryStatus
-                            v-if="endpointData.ssl"
-                            class="ml-4"
-                            :ssl="endpointData.ssl"
-                            :daysRemainingLimit="14"
-                        />
+                    <summary class="collapse-title flex gap-4">
+                        <span class="font-semibold">{{
+                            endpointData.endpoint
+                        }}</span>
+                        <span
+                            v-if="
+                                endpointData.details?.Domain &&
+                                endpointData.details.Domain.Address
+                            "
+                        >
+                            ({{ endpointData.details.Domain.Address }})
+                        </span>
+                        <div class="font-semibold">
+                            <div
+                                v-if="
+                                    endpointData.details?.Domain &&
+                                    endpointData.details.Domain.Resolves ===
+                                        false
+                                "
+                                class="badge badge-error"
+                            >
+                                Domain Can't Resolve
+                            </div>
+                            <ExpiryStatus
+                                v-if="endpointData.details?.SSL"
+                                :ssl="endpointData.details.SSL"
+                                :daysRemainingLimit="14"
+                            />
+                        </div>
                     </summary>
                     <div class="collapse-content">
                         <EndpointCard
                             class="p-5"
                             :endpoint="endpointData.endpoint"
-                            :ssl="endpointData.ssl"
+                            :ssl="endpointData.details?.SSL"
                         />
                     </div>
                 </details>
@@ -84,11 +105,13 @@
 import ThemeSwitcher from "./components/ThemeSwitcher.vue";
 import EndpointCard from "@/components/EndpointCard.vue";
 import { SERVER_URL } from "@/main";
-import type { SSLDetails } from "@/types/certificate";
+import type { EndpointDetails } from "@/types/endpoint";
 import { onMounted, ref } from "vue";
 import ExpiryStatus from "./components/ExpiryStatus.vue";
 
-const endpointsData = ref<{ endpoint: string; ssl: SSLDetails | null }[]>([]);
+const endpointsData = ref<
+    { endpoint: string; details: EndpointDetails | null }[]
+>([]);
 
 const loading = ref(false);
 
@@ -96,11 +119,13 @@ onMounted(async () => {
     loading.value = true;
     try {
         const res = await fetch(`${SERVER_URL}/endpoints`);
-        const data: Record<string, SSLDetails | null> = await res.json();
-        endpointsData.value = Object.entries(data).map(([endpoint, ssl]) => ({
-            endpoint,
-            ssl,
-        }));
+        const data: Record<string, EndpointDetails | null> = await res.json();
+        endpointsData.value = Object.entries(data).map(
+            ([endpoint, details]) => ({
+                endpoint,
+                details,
+            }),
+        );
     } catch (e) {
         console.error("Failed to fetch endpoints:", e);
         endpointsData.value = [];

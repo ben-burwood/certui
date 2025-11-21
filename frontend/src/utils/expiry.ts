@@ -1,4 +1,4 @@
-import type { ExpiryCountdown } from "@/types/certificate";
+import type { ExpiryCountdown } from "@/types/expiry";
 
 // Utility function to calculate days until a given date
 export function daysUntil(date: string, now: Date): number {
