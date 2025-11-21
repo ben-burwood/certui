@@ -1,6 +1,7 @@
 package certificate
 
 import (
+	"certui/internal/domain"
 	"crypto/tls"
 	"net/http"
 	"time"
@@ -33,12 +34,12 @@ func (s *SSLDetails) IsExpired() bool {
 
 // GetCertificateInfo retrieves SSL/TLS certificate information from the specified Address
 // using the provided HTTP Client - Certificate Verification is Skipped for the request.
-func GetCertificateInfo(client *http.Client, address string) (*SSLDetails, error) {
+func GetCertificateInfo(client *http.Client, address domain.Domain) (*SSLDetails, error) {
 	client.Transport = &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
-	resp, err := client.Get(address)
+	resp, err := client.Get(string(address))
 	if err != nil {
 		return nil, err
 	}

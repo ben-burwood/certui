@@ -6,6 +6,7 @@ import (
 
 	"certui/internal/certificate"
 	"certui/internal/config"
+	"certui/internal/domain"
 )
 
 type SSLDetailsWithExpired struct {
@@ -22,7 +23,7 @@ func EndpointHandler(cfg *config.Config) http.HandlerFunc {
 		}
 
 		client := &http.Client{}
-		info, err := certificate.GetCertificateInfo(client, endpoint)
+		info, err := certificate.GetCertificateInfo(client, domain.Domain(endpoint))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -40,7 +41,7 @@ func EndpointHandler(cfg *config.Config) http.HandlerFunc {
 
 func AllEndpointsHandler(cfg *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		results := make(map[string]*SSLDetailsWithExpired)
+		results := make(map[domain.Domain]*SSLDetailsWithExpired)
 		client := &http.Client{}
 		for _, endpoint := range cfg.Endpoints {
 			info, err := certificate.GetCertificateInfo(client, endpoint)

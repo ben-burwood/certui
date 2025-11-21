@@ -1,6 +1,7 @@
 package config
 
 import (
+	"certui/internal/domain"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -28,7 +29,7 @@ var (
 )
 
 type Config struct {
-	Endpoints []string `yaml:"endpoints"`
+	Endpoints []domain.Domain `yaml:"endpoints"`
 }
 
 // LoadConfig loads the configuration from the specified path. If the path is a directory, all .yml and .yaml files
