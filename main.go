@@ -18,7 +18,6 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /api/endpoint", api.EndpointHandler(cfg))
 	mux.HandleFunc("GET /api/endpoints", api.AllEndpointsHandler(cfg))
 	mux.HandleFunc("GET /api/endpoints-sse", api.EndpointHandlerSSE(cfg))
 

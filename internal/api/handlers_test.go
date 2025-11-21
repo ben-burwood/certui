@@ -20,7 +20,7 @@ func TestEndpointHandler_Success(t *testing.T) {
 	rw := httptest.NewRecorder()
 
 	dummyCfg := &config.Config{}
-	handler := EndpointHandler(dummyCfg)
+	handler := AllEndpointsHandler(dummyCfg)
 	handler(rw, req)
 
 	if rw.Code != http.StatusOK {
@@ -31,18 +31,5 @@ func TestEndpointHandler_Success(t *testing.T) {
 	err := json.NewDecoder(rw.Body).Decode(&details)
 	if err != nil {
 		t.Fatalf("failed to decode response: %v", err)
-	}
-}
-
-func TestEndpointHandler_MissingParam(t *testing.T) {
-	req := httptest.NewRequest("GET", "/ssl", nil)
-	rw := httptest.NewRecorder()
-
-	dummyCfg := &config.Config{}
-	handler := EndpointHandler(dummyCfg)
-	handler(rw, req)
-
-	if rw.Code != http.StatusBadRequest {
-		t.Fatalf("expected status 400, got %d", rw.Code)
 	}
 }
