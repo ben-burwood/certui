@@ -16,25 +16,22 @@
         v-else-if="daysRemaining !== null && daysRemaining <= 0"
         class="badge badge-error"
     >
-        SSL Expired
+        Expired
     </div>
-    <div v-else class="badge badge-info">No Certificates</div>
 </template>
 
 <script setup lang="ts">
-import type { SSLDetails } from "@/types/certificate";
 import { daysUntil } from "@/utils/expiry";
 import { computed } from "vue";
 
 const props = defineProps<{
-    ssl: SSLDetails;
+    notAfter: string;
     daysRemainingLimit?: number;
 }>();
 
 const daysRemainingLimit = props.daysRemainingLimit ?? 30;
 
 const daysRemaining = computed(() => {
-    const notAfter = props.ssl?.PeerCertificates?.[0]?.NotAfter ?? "";
-    return daysUntil(notAfter, new Date());
+    return daysUntil(props.notAfter, new Date());
 });
 </script>

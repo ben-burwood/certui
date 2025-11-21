@@ -1,4 +1,5 @@
 import type { SSLDetails } from "./certificate";
+import type { WhoisDetails } from "./whois";
 
 
 export interface DomainDetails {
@@ -10,6 +11,6 @@ export interface DomainDetails {
 
 export interface EndpointDetails {
   Domain: DomainDetails;
-  SSL: SSLDetails;
-  IsExpired: boolean;
+  Whois: WhoisDetails;
+  SSL: SSLDetails | null;
 }

@@ -11,6 +11,7 @@ import (
 
 type EndpointDetails struct {
 	Domain domain.DomainDetails
+	Whois  *domain.WhoisDetails
 	SSL    *certificate.SSLDetails
 }
 
@@ -25,16 +26,22 @@ func EndpointHandler(cfg *config.Config) http.HandlerFunc {
 		endpointDomain := domain.Domain(endpoint)
 
 		client := &http.Client{}
-		info, err := certificate.GetCertificateInfo(client, endpointDomain)
+		ssl, err := certificate.GetCertificateInfo(client, endpointDomain)
 		if err != nil {
-			info = nil
+			ssl = nil
 		}
 
 		domainDetails := domain.GetDomainDetails(endpointDomain)
 
+		whoisDetails, err := domain.WhoisForDomain(endpointDomain)
+		if err != nil {
+			whoisDetails = nil
+		}
+
 		response := EndpointDetails{
 			Domain: domainDetails,
-			SSL:    info,
+			Whois:  whoisDetails,
+			SSL:    ssl,
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -50,16 +57,22 @@ func AllEndpointsHandler(cfg *config.Config) http.HandlerFunc {
 		for _, endpoint := range cfg.Endpoints {
 			endpointDomain := domain.Domain(endpoint)
 
-			info, err := certificate.GetCertificateInfo(client, endpointDomain)
+			ssl, err := certificate.GetCertificateInfo(client, endpointDomain)
 			if err != nil {
-				info = nil
+				ssl = nil
 			}
 
 			domainDetails := domain.GetDomainDetails(endpointDomain)
 
+			whoisDetails, err := domain.WhoisForDomain(endpointDomain)
+			if err != nil {
+				whoisDetails = nil
+			}
+
 			response := EndpointDetails{
 				Domain: domainDetails,
-				SSL:    info,
+				Whois:  whoisDetails,
+				SSL:    ssl,
 			}
 
 			results[endpoint] = &response

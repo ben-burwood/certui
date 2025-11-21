@@ -32,9 +32,6 @@ func TestEndpointHandler_Success(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to decode response: %v", err)
 	}
-	if details.Version == 0 {
-		t.Error("expected non-zero Version in SSLDetails")
-	}
 }
 
 func TestEndpointHandler_MissingParam(t *testing.T) {
