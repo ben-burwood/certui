@@ -1,16 +1,22 @@
 <template>
-    <div v-if="ssl.IsExpired" class="badge badge-error">Expired</div>
+    <div v-if="daysRemaining >= daysRemainingLimit" class="badge badge-success">
+        {{ daysRemaining }} Days Remaining
+    </div>
     <div
-        v-else-if="daysRemaining >= daysRemainingLimit"
-        class="badge badge-success"
+        v-else-if="
+            daysRemaining !== null &&
+            daysRemaining < daysRemainingLimit &&
+            daysRemaining > 0
+        "
+        class="badge badge-warning"
     >
         {{ daysRemaining }} Days Remaining
     </div>
     <div
-        v-else-if="daysRemaining !== null && daysRemaining < daysRemainingLimit"
-        class="badge badge-warning"
+        v-else-if="daysRemaining !== null && daysRemaining <= 0"
+        class="badge badge-error"
     >
-        {{ daysRemaining }} Days Remaining
+        SSL Expired
     </div>
     <div v-else class="badge badge-info">No Certificates</div>
 </template>

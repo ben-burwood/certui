@@ -14,5 +14,4 @@ export interface SSLDetails {
   DidResume: boolean;
   CipherSuite: number;
   PeerCertificates: CertificateDetails[];
-  IsExpired: boolean;
 }

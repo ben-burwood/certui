@@ -4,13 +4,13 @@ import (
 	"testing"
 )
 
-func TestGetDomainAddress(t *testing.T) {
+func TestGetDomainDetails(t *testing.T) {
 	domain := Domain("example.com")
 	details := GetDomainDetails(domain)
 	if details.Domain != domain {
 		t.Fatalf("Expected domain %s, got %s", domain, details.Domain)
 	}
-	if details.HostAddress == "" {
+	if details.Address == "" {
 		t.Fatalf("Expected a non-empty address for domain %s", domain)
 	}
 	if details.Resolves == false {
@@ -18,13 +18,13 @@ func TestGetDomainAddress(t *testing.T) {
 	}
 }
 
-func TestGetDomainAddressInvalid(t *testing.T) {
+func TestGetDomainDetailsInvalid(t *testing.T) {
 	domain := Domain("invalid")
 	details := GetDomainDetails(domain)
 	if details.Domain != domain {
 		t.Fatalf("Expected domain %s, got %s", domain, details.Domain)
 	}
-	if details.HostAddress != "" {
+	if details.Address != "" {
 		t.Fatalf("Expected an empty address for domain %s", domain)
 	}
 	if details.Resolves == true {

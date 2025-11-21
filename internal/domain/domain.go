@@ -29,23 +29,23 @@ func getDomainHostAddress(domain Domain) (Address, error) {
 }
 
 type DomainDetails struct {
-	Domain      Domain
-	HostAddress Address
-	Resolves    bool
+	Domain   Domain
+	Address  Address
+	Resolves bool
 }
 
 func GetDomainDetails(domain Domain) DomainDetails {
 	hostAddress, err := getDomainHostAddress(domain)
 	if err != nil {
 		return DomainDetails{
-			Domain:      domain,
-			HostAddress: "",
-			Resolves:    false,
+			Domain:   domain,
+			Address:  "",
+			Resolves: false,
 		}
 	}
 	return DomainDetails{
-		Domain:      domain,
-		HostAddress: hostAddress,
-		Resolves:    true,
+		Domain:   domain,
+		Address:  hostAddress,
+		Resolves: true,
 	}
 }

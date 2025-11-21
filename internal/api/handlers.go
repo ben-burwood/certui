@@ -9,10 +9,9 @@ import (
 	"certui/internal/domain"
 )
 
-type DomainDetails struct {
-	domain.DomainDetails
-	certificate.SSLDetails
-	IsExpired bool
+type EndpointDetails struct {
+	Domain domain.DomainDetails
+	SSL    *certificate.SSLDetails
 }
 
 // EndpointHandler handles requests for a single Endpoint Details
@@ -28,16 +27,14 @@ func EndpointHandler(cfg *config.Config) http.HandlerFunc {
 		client := &http.Client{}
 		info, err := certificate.GetCertificateInfo(client, endpointDomain)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+			info = nil
 		}
 
 		domainDetails := domain.GetDomainDetails(endpointDomain)
 
-		response := DomainDetails{
-			DomainDetails: domainDetails,
-			SSLDetails:    *info,
-			IsExpired:     info.IsExpired(),
+		response := EndpointDetails{
+			Domain: domainDetails,
+			SSL:    info,
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -48,23 +45,21 @@ func EndpointHandler(cfg *config.Config) http.HandlerFunc {
 // AllEndpointsHandler handles requests for all Endpoints Details
 func AllEndpointsHandler(cfg *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		results := make(map[domain.Domain]*DomainDetails)
+		results := make(map[domain.Domain]*EndpointDetails)
 		client := &http.Client{}
 		for _, endpoint := range cfg.Endpoints {
 			endpointDomain := domain.Domain(endpoint)
 
 			info, err := certificate.GetCertificateInfo(client, endpointDomain)
 			if err != nil {
-				results[endpoint] = nil
-				continue
+				info = nil
 			}
 
 			domainDetails := domain.GetDomainDetails(endpointDomain)
 
-			response := DomainDetails{
-				DomainDetails: domainDetails,
-				SSLDetails:    *info,
-				IsExpired:     info.IsExpired(),
+			response := EndpointDetails{
+				Domain: domainDetails,
+				SSL:    info,
 			}
 
 			results[endpoint] = &response
