@@ -6,24 +6,28 @@ import (
 
 func TestGetDomainAddress(t *testing.T) {
 	domain := Domain("example.com")
-	addr, err := GetDomainAddress(domain)
-	if err != nil {
-		t.Fatalf("Expected no error, got %v", err)
+	details := GetDomainDetails(domain)
+	if details.Domain != domain {
+		t.Fatalf("Expected domain %s, got %s", domain, details.Domain)
 	}
-	if addr == "" {
+	if details.HostAddress == "" {
 		t.Fatalf("Expected a non-empty address for domain %s", domain)
 	}
-	t.Logf("Address for %s: %s", domain, addr)
+	if details.Resolves == false {
+		t.Fatalf("Expected domain %s to resolve", domain)
+	}
 }
 
 func TestGetDomainAddressInvalid(t *testing.T) {
 	domain := Domain("invalid")
-	addr, err := GetDomainAddress(domain)
-	if err == nil {
-		t.Fatalf("Expected an error, got nil")
+	details := GetDomainDetails(domain)
+	if details.Domain != domain {
+		t.Fatalf("Expected domain %s, got %s", domain, details.Domain)
 	}
-	if addr != "" {
+	if details.HostAddress != "" {
 		t.Fatalf("Expected an empty address for domain %s", domain)
 	}
-	t.Logf("Address for %s: %s", domain, addr)
+	if details.Resolves == true {
+		t.Fatalf("Expected domain %s to not resolve", domain)
+	}
 }

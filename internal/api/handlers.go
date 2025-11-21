@@ -9,11 +9,13 @@ import (
 	"certui/internal/domain"
 )
 
-type SSLDetailsWithExpired struct {
+type DomainDetails struct {
+	domain.DomainDetails
 	certificate.SSLDetails
 	IsExpired bool
 }
 
+// EndpointHandler handles requests for a single Endpoint Details
 func EndpointHandler(cfg *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		endpoint := r.URL.Query().Get("endpoint")
@@ -21,17 +23,21 @@ func EndpointHandler(cfg *config.Config) http.HandlerFunc {
 			http.Error(w, "Missing endpoint parameter", http.StatusBadRequest)
 			return
 		}
+		endpointDomain := domain.Domain(endpoint)
 
 		client := &http.Client{}
-		info, err := certificate.GetCertificateInfo(client, domain.Domain(endpoint))
+		info, err := certificate.GetCertificateInfo(client, endpointDomain)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		response := SSLDetailsWithExpired{
-			SSLDetails: *info,
-			IsExpired:  info.IsExpired(),
+		domainDetails := domain.GetDomainDetails(endpointDomain)
+
+		response := DomainDetails{
+			DomainDetails: domainDetails,
+			SSLDetails:    *info,
+			IsExpired:     info.IsExpired(),
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -39,20 +45,26 @@ func EndpointHandler(cfg *config.Config) http.HandlerFunc {
 	}
 }
 
+// AllEndpointsHandler handles requests for all Endpoints Details
 func AllEndpointsHandler(cfg *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		results := make(map[domain.Domain]*SSLDetailsWithExpired)
+		results := make(map[domain.Domain]*DomainDetails)
 		client := &http.Client{}
 		for _, endpoint := range cfg.Endpoints {
-			info, err := certificate.GetCertificateInfo(client, endpoint)
+			endpointDomain := domain.Domain(endpoint)
+
+			info, err := certificate.GetCertificateInfo(client, endpointDomain)
 			if err != nil {
 				results[endpoint] = nil
 				continue
 			}
 
-			response := SSLDetailsWithExpired{
-				SSLDetails: *info,
-				IsExpired:  info.IsExpired(),
+			domainDetails := domain.GetDomainDetails(endpointDomain)
+
+			response := DomainDetails{
+				DomainDetails: domainDetails,
+				SSLDetails:    *info,
+				IsExpired:     info.IsExpired(),
 			}
 
 			results[endpoint] = &response
