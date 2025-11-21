@@ -127,7 +127,7 @@ const endpointsData = ref<
     { endpoint: string; details: EndpointDetails | null }[]
 >([]);
 
-const loading = ref(false);
+const loading = ref(true);
 
 // Basic HTTP Inplementation
 // onMounted(async () => {
