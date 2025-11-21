@@ -103,7 +103,12 @@ func EndpointHandlerSSE(cfg *config.Config) http.HandlerFunc {
 				Whois:  whoisDetails,
 				SSL:    ssl,
 			}
-			b, _ := json.Marshal(response)
+			wrapped := struct {
+				Endpoint domain.Domain   `json:"endpoint"`
+				Details  EndpointDetails `json:"details"`
+			}{Endpoint: endpoint, Details: response}
+
+			b, _ := json.Marshal(wrapped)
 			fmt.Fprintf(w, "data: %s\n\n", b) // Send Single Endpoint Data
 			w.(http.Flusher).Flush()
 		}
