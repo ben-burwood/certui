@@ -150,7 +150,7 @@ const loading = ref(false);
 // });
 
 // Server Sent Events Implementation
-let eventSource = null;
+let eventSource: EventSource | null = null;
 onMounted(() => {
     eventSource = new EventSource(`${SERVER_URL}/endpoints-sse`);
     eventSource.onmessage = (event) => {
@@ -159,19 +159,16 @@ onMounted(() => {
     };
     eventSource.addEventListener("done", () => {
         console.log("EventSource done");
-        eventSource.close();
+        if (eventSource) eventSource.close();
         loading.value = false;
     });
     eventSource.onerror = (e) => {
         console.error("EventSource error:", e);
         loading.value = false;
-        eventSource.close();
+        if (eventSource) eventSource.close();
     };
     eventSource.onopen = () => {
         console.log("EventSource opened");
-    };
-    eventSource.onclose = () => {
-        console.log("EventSource closed");
     };
 });
 

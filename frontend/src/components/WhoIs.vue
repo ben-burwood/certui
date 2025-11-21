@@ -18,10 +18,9 @@
 
 <script setup lang="ts">
 import ExpiryCountdown from "@/components/ExpiryCountdown.vue";
-import { WhoisDetails } from "@/types/whois";
-import { computed } from "vue";
+import type { WhoisDetails } from "@/types/whois";
 
-const props = defineProps<{
+defineProps<{
     whois: WhoisDetails;
 }>();
 </script>
