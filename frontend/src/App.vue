@@ -48,11 +48,18 @@
                         </div>
                     </summary>
                     <div class="collapse-content">
-                        <EndpointCard
-                            class="p-5"
-                            :endpoint="endpointData.endpoint"
-                            :ssl="endpointData.details?.SSL"
-                        />
+                        <div v-if="endpointData.details?.Whois">
+                            <div class="divider">WHOIS</div>
+                            <WhoIs :whois="endpointData.details.Whois" />
+                        </div>
+                        <div v-if="endpointData.details?.SSL">
+                            <div class="divider">SSL</div>
+                            <EndpointCard
+                                class="p-5"
+                                :endpoint="endpointData.endpoint"
+                                :ssl="endpointData.details?.SSL"
+                            />
+                        </div>
                     </div>
                 </details>
             </div>
@@ -108,6 +115,7 @@ import { SERVER_URL } from "@/main";
 import type { EndpointDetails } from "@/types/endpoint";
 import { onMounted, ref } from "vue";
 import ExpiryStatus from "./components/ExpiryStatus.vue";
+import WhoIs from "./components/WhoIs.vue";
 
 const endpointsData = ref<
     { endpoint: string; details: EndpointDetails | null }[]
