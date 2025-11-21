@@ -16,9 +16,3 @@ export interface SSLDetails {
   PeerCertificates: CertificateDetails[];
   IsExpired: boolean;
 }
-
-export interface ExpiryCountdown {
-  days: number;
-  hours: number;
-  minutes: number;
-}
