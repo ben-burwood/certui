@@ -3,3 +3,4 @@ endpoints:
   - https://www.github.com
   - https://expired.badssl.com
   - http://invalid
+  - google.com
