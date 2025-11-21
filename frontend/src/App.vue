@@ -119,7 +119,7 @@ import ThemeSwitcher from "./components/ThemeSwitcher.vue";
 import EndpointCard from "@/components/EndpointCard.vue";
 import { SERVER_URL } from "@/main";
 import type { EndpointDetails } from "@/types/endpoint";
-import { onMounted, ref } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import ExpiryStatus from "./components/ExpiryStatus.vue";
 import WhoIs from "./components/WhoIs.vue";
 
@@ -129,22 +129,53 @@ const endpointsData = ref<
 
 const loading = ref(false);
 
-onMounted(async () => {
-    loading.value = true;
-    try {
-        const res = await fetch(`${SERVER_URL}/endpoints`);
-        const data: Record<string, EndpointDetails | null> = await res.json();
-        endpointsData.value = Object.entries(data).map(
-            ([endpoint, details]) => ({
-                endpoint,
-                details,
-            }),
-        );
-    } catch (e) {
-        console.error("Failed to fetch endpoints:", e);
-        endpointsData.value = [];
-    } finally {
+// Basic HTTP Inplementation
+// onMounted(async () => {
+//     loading.value = true;
+//     try {
+//         const res = await fetch(`${SERVER_URL}/endpoints`);
+//         const data: Record<string, EndpointDetails | null> = await res.json();
+//         endpointsData.value = Object.entries(data).map(
+//             ([endpoint, details]) => ({
+//                 endpoint,
+//                 details,
+//             }),
+//         );
+//     } catch (e) {
+//         console.error("Failed to fetch endpoints:", e);
+//         endpointsData.value = [];
+//     } finally {
+//         loading.value = false;
+//     }
+// });
+
+// Server Sent Events Implementation
+let eventSource = null;
+onMounted(() => {
+    eventSource = new EventSource(`${SERVER_URL}/endpoints-sse`);
+    eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        endpointsData.value.push(data);
+    };
+    eventSource.addEventListener("done", () => {
+        console.log("EventSource done");
+        eventSource.close();
         loading.value = false;
-    }
+    });
+    eventSource.onerror = (e) => {
+        console.error("EventSource error:", e);
+        loading.value = false;
+        eventSource.close();
+    };
+    eventSource.onopen = () => {
+        console.log("EventSource opened");
+    };
+    eventSource.onclose = () => {
+        console.log("EventSource closed");
+    };
+});
+
+onUnmounted(() => {
+    if (eventSource) eventSource.close();
 });
 </script>
