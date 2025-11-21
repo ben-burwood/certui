@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"certui/internal/certificate"
@@ -80,5 +81,33 @@ func AllEndpointsHandler(cfg *config.Config) http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(results)
+	}
+}
+
+// EndpointHandlerSSE handles Server Sent Events (SSE) Endpoint.
+func EndpointHandlerSSE(cfg *config.Config) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Header().Set("Connection", "keep-alive")
+
+		client := &http.Client{}
+		for _, endpoint := range cfg.Endpoints {
+			endpointDomain := domain.Domain(endpoint)
+			ssl, _ := certificate.GetCertificateInfo(client, endpointDomain)
+			domainDetails := domain.GetDomainDetails(endpointDomain)
+			whoisDetails, _ := domain.WhoisForDomain(endpointDomain)
+
+			response := EndpointDetails{
+				Domain: domainDetails,
+				Whois:  whoisDetails,
+				SSL:    ssl,
+			}
+			b, _ := json.Marshal(response)
+			fmt.Fprintf(w, "data: %s\n\n", b) // Send Single Endpoint Data
+			w.(http.Flusher).Flush()
+		}
+		fmt.Fprintf(w, "event: done\ndata: {}\n\n") // Send Done Event
+		w.(http.Flusher).Flush()
 	}
 }
