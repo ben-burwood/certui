@@ -17,23 +17,35 @@
                     v-for="(endpointData, index) in endpointsData"
                     :key="index"
                 >
-                    <summary class="collapse-title font-semibold">
-                        {{ endpointData.endpoint }}
-                        <div
+                    <summary class="collapse-title flex gap-4">
+                        <span class="font-semibold">{{
+                            endpointData.endpoint
+                        }}</span>
+                        <span
                             v-if="
                                 endpointData.details?.Domain &&
-                                endpointData.details.Domain.Resolves === false
+                                endpointData.details.Domain.Address
                             "
-                            class="badge badge-error ml-4"
                         >
-                            Domain Can't Resolve
+                            ({{ endpointData.details.Domain.Address }})
+                        </span>
+                        <div class="font-semibold">
+                            <div
+                                v-if="
+                                    endpointData.details?.Domain &&
+                                    endpointData.details.Domain.Resolves ===
+                                        false
+                                "
+                                class="badge badge-error"
+                            >
+                                Domain Can't Resolve
+                            </div>
+                            <ExpiryStatus
+                                v-if="endpointData.details?.SSL"
+                                :ssl="endpointData.details.SSL"
+                                :daysRemainingLimit="14"
+                            />
                         </div>
-                        <ExpiryStatus
-                            v-if="endpointData.details?.SSL"
-                            class="ml-4"
-                            :ssl="endpointData.details.SSL"
-                            :daysRemainingLimit="14"
-                        />
                     </summary>
                     <div class="collapse-content">
                         <EndpointCard
