@@ -14,18 +14,9 @@
                 <p><strong>Cipher Suite:</strong> {{ ssl.CipherSuite }}</p>
             </div>
 
-            <ul
-                v-if="ssl.PeerCertificates && ssl.PeerCertificates.length"
-                class="list mt-2"
-            >
-                <li class="p-4 pb-2 text-md opacity-80 tracking-wide">
-                    Peer Certificates
-                </li>
-                <li
-                    v-for="(cert, idx) in ssl.PeerCertificates"
-                    :key="idx"
-                    class="list-row"
-                >
+            <ul v-if="ssl.PeerCertificates && ssl.PeerCertificates.length" class="list mt-2">
+                <li class="p-4 pb-2 text-md opacity-80 tracking-wide">Peer Certificates</li>
+                <li v-for="(cert, idx) in ssl.PeerCertificates" :key="idx" class="list-row">
                     <EndpointCertificateCard :certificate="cert" />
                 </li>
             </ul>

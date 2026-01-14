@@ -20,10 +20,10 @@
 </template>
 
 <script setup lang="ts">
-import ExpiryCountdown from '@/components/ExpiryCountdown.vue';
-import type { CertificateDetails } from '@/types/certificate';
+import ExpiryCountdown from "@/components/ExpiryCountdown.vue";
+import type { CertificateDetails } from "@/types/certificate";
 
 defineProps<{
-    certificate: CertificateDetails
+    certificate: CertificateDetails;
 }>();
 </script>

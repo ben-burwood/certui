@@ -1,23 +1,9 @@
 <template>
-    <div v-if="daysRemaining >= daysRemainingLimit" class="badge badge-success">
+    <div v-if="daysRemaining >= daysRemainingLimit" class="badge badge-success">{{ daysRemaining }} Days Remaining</div>
+    <div v-else-if="daysRemaining !== null && daysRemaining < daysRemainingLimit && daysRemaining > 0" class="badge badge-warning">
         {{ daysRemaining }} Days Remaining
     </div>
-    <div
-        v-else-if="
-            daysRemaining !== null &&
-            daysRemaining < daysRemainingLimit &&
-            daysRemaining > 0
-        "
-        class="badge badge-warning"
-    >
-        {{ daysRemaining }} Days Remaining
-    </div>
-    <div
-        v-else-if="daysRemaining !== null && daysRemaining <= 0"
-        class="badge badge-error"
-    >
-        Expired
-    </div>
+    <div v-else-if="daysRemaining !== null && daysRemaining <= 0" class="badge badge-error">Expired</div>
 </template>
 
 <script setup lang="ts">

@@ -2,6 +2,7 @@
     <div v-if="expired">
         <p class="font-mono text-2xl font-bold">EXPIRED</p>
     </div>
+    <div v-else-if="timeLeft.days > 365 * 5"><p class="font-mono text-2xl">>5 Years</p></div>
     <div v-else class="flex gap-5">
         <div>
             <span
@@ -61,11 +62,7 @@ const timeLeft = computed(() => {
 });
 
 const expired = computed(() => {
-    return (
-        timeLeft.value.days <= 0 &&
-        timeLeft.value.hours <= 0 &&
-        timeLeft.value.minutes <= 0
-    );
+    return timeLeft.value.days <= 0 && timeLeft.value.hours <= 0 && timeLeft.value.minutes <= 0;
 });
 
 const displayValue = (v: number) => {

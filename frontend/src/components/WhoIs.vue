@@ -9,9 +9,7 @@
         </div>
         <div class="flex gap-10 items-center">
             <ExpiryCountdown :validTo="whois.ExpirationDate" />
-            <div>
-                <strong>Expiration Date:</strong> {{ whois.ExpirationDate }}
-            </div>
+            <div><strong>Expiration Date:</strong> {{ whois.ExpirationDate }}</div>
         </div>
     </div>
 </template>
