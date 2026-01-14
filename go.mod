@@ -4,14 +4,14 @@ go 1.25.1
 
 require (
 	github.com/TwiN/deepmerge v0.2.2
-	github.com/google/yamlfmt v0.17.2
-	github.com/likexian/whois v1.15.6
-	github.com/likexian/whois-parser v1.24.20
-	golang.org/x/net v0.35.0
+	github.com/google/yamlfmt v0.21.0
+	github.com/likexian/whois v1.15.7
+	github.com/likexian/whois-parser v1.24.21
+	golang.org/x/net v0.49.0
 )
 
 require (
-	github.com/likexian/gokit v0.25.15 // indirect
-	golang.org/x/text v0.22.0 // indirect
+	github.com/likexian/gokit v0.25.16 // indirect
+	golang.org/x/text v0.33.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
