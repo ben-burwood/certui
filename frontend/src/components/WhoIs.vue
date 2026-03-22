@@ -3,11 +3,11 @@
         <div><strong>Registrar:</strong> {{ whois.Registrar }}</div>
         <div class="flex gap-2">
             <strong>Name Servers:</strong>
-            <ul class="flex gap-2">
+            <ul class="flex flex-wrap gap-2">
                 <li v-for="ns in whois.NameServers" :key="ns">{{ ns }}</li>
             </ul>
         </div>
-        <div class="flex gap-10 items-center">
+        <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
             <ExpiryCountdown :validTo="whois.ExpirationDate" />
             <div><strong>Expiration Date:</strong> {{ whois.ExpirationDate }}</div>
         </div>

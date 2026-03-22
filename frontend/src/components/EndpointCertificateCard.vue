@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="flex gap-10 mb-2 items-center">
+        <div class="flex flex-col sm:flex-row gap-4 mb-2 items-start sm:items-center">
             <ExpiryCountdown :validTo="certificate.NotAfter" />
 
             <div>
@@ -12,7 +12,7 @@
         <p><strong>Subject:</strong> {{ certificate.Subject }}</p>
         <p><strong>Issuer:</strong> {{ certificate.Issuer }}</p>
 
-        <div class="mt-2 flex gap-5">
+        <div class="mt-2 flex flex-wrap gap-4">
             <p><strong>Signature Algorithm:</strong> {{ certificate.SignatureAlgorithm }}</p>
             <p><strong>Public Key Algorithm:</strong> {{ certificate.PublicKeyAlgorithm }}</p>
         </div>
