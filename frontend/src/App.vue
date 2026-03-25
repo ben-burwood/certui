@@ -17,7 +17,7 @@
                     v-for="(endpointData, index) in endpointsData"
                     :key="index"
                 >
-                    <summary class="collapse-title flex gap-4">
+                    <summary class="collapse-title flex flex-wrap gap-2 sm:gap-4">
                         <span class="font-semibold">{{ endpointData.endpoint }}</span>
                         <span v-if="endpointData.details?.Domain && endpointData.details.Domain.Address">
                             ({{ endpointData.details.Domain.Address }})
