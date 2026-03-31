@@ -25,7 +25,7 @@ func NewWhoisDetails(whoisInfo *whoisparser.WhoisInfo) *WhoisDetails {
 // WhoisForDomain retrieves the whois information for a domain.
 func WhoisForDomain(domain Domain) (*WhoisDetails, error) {
 	// Get the effective TLD+1 for the domain - i.e. www.example.com -> example.com
-	eTLDPlusOne, err := publicsuffix.EffectiveTLDPlusOne(string(domain))
+	eTLDPlusOne, err := publicsuffix.EffectiveTLDPlusOne(string(domain.stripHttpPrefix()))
 	if err != nil {
 		return nil, err
 	}

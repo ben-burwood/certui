@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"certui/internal/certificate"
 	"certui/internal/config"
@@ -57,7 +58,7 @@ func EndpointHandlerSSE(cfg *config.Config) http.HandlerFunc {
 		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Connection", "keep-alive")
 
-		client := &http.Client{}
+		client := &http.Client{Timeout: 10 * time.Second}
 		for _, endpoint := range cfg.Endpoints {
 			endpointDomain := domain.Domain(endpoint)
 			ssl, _ := certificate.GetCertificateInfo(client, endpointDomain)
