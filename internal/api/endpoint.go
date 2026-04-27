@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log"
 	"net/http"
 	"sync"
 
@@ -23,9 +24,26 @@ func fetchEndpointDetails(client *http.Client, endpoint domain.Domain) *Endpoint
 	var wg sync.WaitGroup
 
 	wg.Add(3)
-	go func() { defer wg.Done(); ssl, _ = certificate.GetCertificateInfo(client, endpoint) }()
-	go func() { defer wg.Done(); domainDetails = domain.GetDomainDetails(endpoint) }()
-	go func() { defer wg.Done(); whoisDetails, _ = domain.WhoisForDomain(endpoint) }()
+	go func() {
+		defer wg.Done()
+		var err error
+		ssl, err = certificate.GetCertificateInfo(client, endpoint)
+		if err != nil {
+			log.Printf("Error getting certificate info for %s: %v", endpoint, err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		domainDetails = domain.GetDomainDetails(endpoint)
+	}()
+	go func() {
+		defer wg.Done()
+		var err error
+		whoisDetails, err = domain.WhoisForDomain(endpoint)
+		if err != nil {
+			log.Printf("Error getting WHOIS info for %s: %v", endpoint, err)
+		}
+	}()
 	wg.Wait()
 
 	return &EndpointDetails{Domain: domainDetails, Whois: whoisDetails, SSL: ssl}
