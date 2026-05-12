@@ -10,6 +10,7 @@ export interface CertificateDetails {
 
 export interface SSLDetails {
   Version: number;
+  Protocol: string;
   HandshakeComplete: boolean;
   DidResume: boolean;
   CipherSuite: number;

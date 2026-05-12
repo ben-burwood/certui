@@ -9,6 +9,7 @@ import (
 
 type SSLDetails struct {
 	Version           uint16
+	Protocol          string
 	HandshakeComplete bool
 	DidResume         bool
 	CipherSuite       uint16
@@ -47,6 +48,7 @@ func GetCertificateInfo(client *http.Client, address domain.Domain) (*SSLDetails
 
 	sslInfo := SSLDetails{
 		Version:           resp.TLS.Version,
+		Protocol:          tls.VersionName(resp.TLS.Version),
 		HandshakeComplete: resp.TLS.HandshakeComplete,
 		DidResume:         resp.TLS.DidResume,
 		CipherSuite:       resp.TLS.CipherSuite,

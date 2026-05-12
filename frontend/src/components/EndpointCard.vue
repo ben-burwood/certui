@@ -2,7 +2,7 @@
     <div>
         <div v-if="ssl">
             <div class="flex flex-wrap gap-4">
-                <p><strong>TLS Version:</strong> {{ ssl.Version }}</p>
+                <p><strong>TLS Protocol:</strong> {{ ssl.Protocol }} ({{ ssl.Version }})</p>
                 <p>
                     <strong>Handshake Complete:</strong>
                     {{ ssl.HandshakeComplete ? "Yes" : "No" }}
