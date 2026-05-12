@@ -8,11 +8,15 @@ export interface CertificateDetails {
   PublicKeyAlgorithm: string;
 }
 
-export interface SSLDetails {
-  Version: number;
+export interface TLSProtocolSupport {
   Protocol: string;
+  Supported: boolean;
+}
+
+export interface SSLDetails {
   HandshakeComplete: boolean;
   DidResume: boolean;
   CipherSuite: number;
   PeerCertificates: CertificateDetails[];
+  TLSProtocols: TLSProtocolSupport[];
 }

@@ -2,7 +2,6 @@
     <div>
         <div v-if="ssl">
             <div class="flex flex-wrap gap-4">
-                <p><strong>TLS Protocol:</strong> {{ ssl.Protocol }} ({{ ssl.Version }})</p>
                 <p>
                     <strong>Handshake Complete:</strong>
                     {{ ssl.HandshakeComplete ? "Yes" : "No" }}
@@ -12,6 +11,17 @@
                     {{ ssl.DidResume ? "Yes" : "No" }}
                 </p>
                 <p><strong>Cipher Suite:</strong> {{ ssl.CipherSuite }}</p>
+            </div>
+
+            <div v-if="tlsProtocols.length" class="mt-2">
+                <p class="flex items-center gap-2">
+                    <strong>TLS Protocols:</strong>
+                    <span class="flex flex-wrap gap-2">
+                        <span v-for="p in tlsProtocols" :key="p.Protocol" class="badge badge-info">
+                            {{ p.Protocol }}
+                        </span>
+                    </span>
+                </p>
             </div>
 
             <ul v-if="ssl.PeerCertificates && ssl.PeerCertificates.length" class="list mt-2">
@@ -28,11 +38,14 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import EndpointCertificateCard from "@/components/EndpointCertificateCard.vue";
 import type { SSLDetails } from "@/types/certificate";
 
-defineProps<{
+const props = defineProps<{
     endpoint: string;
     ssl?: SSLDetails | null;
 }>();
+
+const tlsProtocols = computed(() => props.ssl?.TLSProtocols?.filter((p) => p.Supported) ?? []);
 </script>

@@ -22,12 +22,12 @@ func TestGetCertificateInfo(t *testing.T) {
 		t.Error("Expected HandshakeComplete to be true")
 	}
 
-	if info.Version == 0 {
-		t.Error("Expected non-zero TLS version")
-	}
-
 	if info.CipherSuite == 0 {
 		t.Error("Expected non-zero CipherSuite")
+	}
+
+	if len(info.TLSProtocols) == 0 {
+		t.Error("Expected TLSProtocols to be populated")
 	}
 
 	if len(info.PeerCertificates) == 0 {
