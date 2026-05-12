@@ -24,6 +24,17 @@
                 </p>
             </div>
 
+            <div v-if="httpVersions.length" class="mt-2">
+                <p class="flex items-center gap-2">
+                    <strong>HTTP Versions:</strong>
+                    <span class="flex flex-wrap gap-2">
+                        <span v-for="p in httpVersions" :key="p.Version" class="badge badge-info">
+                            {{ p.Version }}
+                        </span>
+                    </span>
+                </p>
+            </div>
+
             <ul v-if="ssl.PeerCertificates && ssl.PeerCertificates.length" class="list mt-2">
                 <li class="p-4 pb-2 text-md opacity-80 tracking-wide">Peer Certificates</li>
                 <li v-for="(cert, idx) in ssl.PeerCertificates" :key="idx" class="list-row">
@@ -48,4 +59,5 @@ const props = defineProps<{
 }>();
 
 const tlsProtocols = computed(() => props.ssl?.TLSProtocols?.filter((p) => p.Supported) ?? []);
+const httpVersions = computed(() => props.ssl?.HTTPVersions?.filter((p) => p.Supported) ?? []);
 </script>

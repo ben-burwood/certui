@@ -13,10 +13,16 @@ export interface TLSProtocolSupport {
   Supported: boolean;
 }
 
+export interface HTTPVersionSupport {
+  Version: string;
+  Supported: boolean;
+}
+
 export interface SSLDetails {
   HandshakeComplete: boolean;
   DidResume: boolean;
   CipherSuite: number;
   PeerCertificates: CertificateDetails[];
   TLSProtocols: TLSProtocolSupport[];
+  HTTPVersions: HTTPVersionSupport[];
 }

@@ -14,6 +14,7 @@ type SSLDetails struct {
 	CipherSuite       uint16
 	PeerCertificates  []CertificateDetails
 	TLSProtocols      []TLSProtocolSupport
+	HTTPVersions      []HTTPVersionSupport
 }
 
 type CertificateDetails struct {
@@ -42,14 +43,19 @@ func GetCertificateInfo(client *http.Client, address domain.Domain) (*SSLDetails
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
-	// Probe supported TLS versions in parallel with the main HTTPS request
 	var probeWG sync.WaitGroup
 	var probes []TLSProtocolSupport
+	var httpProbes []HTTPVersionSupport
 	if hostPort, err := addressToHostPort(string(address)); err == nil {
-		probeWG.Add(1)
+		timeout := probeTimeout(client)
+		probeWG.Add(2)
 		go func() {
 			defer probeWG.Done()
-			probes = probeTLSVersions(hostPort, probeTimeout(client))
+			probes = probeTLSVersions(hostPort, timeout)
+		}()
+		go func() {
+			defer probeWG.Done()
+			httpProbes = probeHTTPVersions(hostPort, timeout)
 		}()
 	}
 
@@ -78,6 +84,7 @@ func GetCertificateInfo(client *http.Client, address domain.Domain) (*SSLDetails
 
 	probeWG.Wait()
 	sslInfo.TLSProtocols = probes
+	sslInfo.HTTPVersions = httpProbes
 	return &sslInfo, nil
 }
 
