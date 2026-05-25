@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"sync"
+	"time"
 
 	"certui/internal/certificate"
 	"certui/internal/domain"
@@ -16,8 +17,24 @@ type EndpointDetails struct {
 	SSL    *certificate.SSLDetails
 }
 
+const endpointCacheTTL = time.Hour
+
+var endpointCache sync.Map // map[domain.Domain]endpointCacheEntry
+
+type endpointCacheEntry struct {
+	details   *EndpointDetails
+	expiresAt time.Time
+}
+
 // fetchEndpointDetails fetches certificate, domain, and WHOIS details concurrently for a single endpoint
 func fetchEndpointDetails(client *http.Client, endpoint domain.Domain) *EndpointDetails {
+	if v, ok := endpointCache.Load(endpoint); ok {
+		entry := v.(endpointCacheEntry)
+		if time.Now().Before(entry.expiresAt) {
+			return entry.details
+		}
+	}
+
 	var ssl *certificate.SSLDetails
 	var domainDetails domain.DomainDetails
 	var whoisDetails *domain.WhoisDetails
@@ -46,5 +63,10 @@ func fetchEndpointDetails(client *http.Client, endpoint domain.Domain) *Endpoint
 	}()
 	wg.Wait()
 
-	return &EndpointDetails{Domain: domainDetails, Whois: whoisDetails, SSL: ssl}
+	details := &EndpointDetails{Domain: domainDetails, Whois: whoisDetails, SSL: ssl}
+	endpointCache.Store(endpoint, endpointCacheEntry{
+		details:   details,
+		expiresAt: time.Now().Add(endpointCacheTTL),
+	})
+	return details
 }
