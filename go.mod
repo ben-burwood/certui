@@ -7,7 +7,7 @@ require (
 	github.com/google/yamlfmt v0.21.0
 	github.com/likexian/whois v1.15.7
 	github.com/likexian/whois-parser v1.24.21
-	github.com/quic-go/quic-go v0.59.1
+	github.com/quic-go/quic-go v0.60.0
 	golang.org/x/net v0.55.0
 )
 
