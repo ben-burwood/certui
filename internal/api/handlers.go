@@ -14,6 +14,8 @@ import (
 // AllEndpointsHandler handles requests for all Endpoints Details
 func AllEndpointsHandler(cfg *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		force := r.URL.Query().Get("refresh") == "true"
+
 		results := make(map[domain.Domain]*EndpointDetails)
 		var mu sync.Mutex
 		var wg sync.WaitGroup
@@ -23,7 +25,7 @@ func AllEndpointsHandler(cfg *config.Config) http.HandlerFunc {
 			wg.Add(1)
 			go func(ep domain.Domain) {
 				defer wg.Done()
-				details := fetchEndpointDetails(client, ep)
+				details := fetchEndpointDetails(client, ep, force)
 				mu.Lock()
 				results[ep] = details
 				mu.Unlock()
@@ -43,6 +45,8 @@ func EndpointHandlerSSE(cfg *config.Config) http.HandlerFunc {
 		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Connection", "keep-alive")
 
+		force := r.URL.Query().Get("refresh") == "true"
+
 		var mu sync.Mutex
 		var wg sync.WaitGroup
 
@@ -51,7 +55,7 @@ func EndpointHandlerSSE(cfg *config.Config) http.HandlerFunc {
 			wg.Add(1)
 			go func(ep domain.Domain) {
 				defer wg.Done()
-				details := fetchEndpointDetails(client, ep)
+				details := fetchEndpointDetails(client, ep, force)
 				wrapped := struct {
 					Endpoint domain.Domain   `json:"endpoint"`
 					Details  EndpointDetails `json:"details"`

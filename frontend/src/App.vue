@@ -6,6 +6,30 @@
                 <img src="/logo.svg" alt="CertUI Logo" class="h-15" />
                 <span class="text-2xl font-bold">CertUI</span>
             </div>
+            <div class="flex-1"></div>
+            <button
+                class="btn btn-ghost btn-circle lg:mr-20"
+                :disabled="loading"
+                title="Force refresh (bypass cache)"
+                aria-label="Force refresh"
+                @click="loadEndpoints(true)"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    :class="{ 'animate-spin': loading }"
+                >
+                    <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+                    <path d="M21 3v6h-6" />
+                </svg>
+            </button>
         </div>
 
         <!-- BODY -->
@@ -111,8 +135,13 @@ const loading = ref(true);
 
 // Server Sent Events Implementation
 let eventSource: EventSource | null = null;
-onMounted(() => {
-    eventSource = new EventSource(`${SERVER_URL}/endpoints-sse`);
+
+const loadEndpoints = (force = false) => {
+    if (eventSource) eventSource.close();
+    endpointsData.value = [];
+    loading.value = true;
+
+    eventSource = new EventSource(`${SERVER_URL}/endpoints-sse${force ? "?refresh=true" : ""}`);
     eventSource.onmessage = (event) => {
         const data = JSON.parse(event.data);
         endpointsData.value.push(data);
@@ -130,7 +159,9 @@ onMounted(() => {
     eventSource.onopen = () => {
         console.log("EventSource opened");
     };
-});
+};
+
+onMounted(() => loadEndpoints());
 
 onUnmounted(() => {
     if (eventSource) eventSource.close();
