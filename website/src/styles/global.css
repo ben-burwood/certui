@@ -1,0 +1,146 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+
+/*
+ * Design tokens for the CertUI landing site. The accent follows the app's green
+ * certificate-badge identity (#2ECC71). The site follows the visitor's OS
+ * preference (prefers-color-scheme); a manual [data-theme] override is also
+ * supported for a future toggle.
+ */
+:root {
+  --surface: #f6f6f4;
+  --surface-2: #efeeeb;
+  --card: #ffffff;
+  --border: #e4e3dd;
+  --ink: #1f1e1c;
+  --muted: #6b6a65;
+  --faint: #98968f;
+  --accent: #1fae64;
+  --accent-strong: #178a4f;
+  --accent-2: #2ecc71;
+
+  /* Certificate status */
+  --success: #1fae64;
+  --success-soft: color-mix(in srgb, #2ecc71 16%, transparent);
+  --warning: #d98a09;
+  --warning-soft: color-mix(in srgb, #f0a92a 20%, transparent);
+  --danger: #dc3545;
+  --danger-soft: color-mix(in srgb, #dc3545 15%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: #141513;
+    --surface-2: #1a1b18;
+    --card: #1d1e1a;
+    --border: #2c2d29;
+    --ink: #e8e7e0;
+    --muted: #a3a29b;
+    --faint: #7a7972;
+    --accent: #35d07f;
+    --accent-strong: #58dd97;
+    --accent-2: #2ecc71;
+
+    --success: #35d07f;
+    --success-soft: color-mix(in srgb, #2ecc71 22%, transparent);
+    --warning: #f0a92a;
+    --warning-soft: color-mix(in srgb, #f0a92a 22%, transparent);
+    --danger: #f06b6b;
+    --danger-soft: color-mix(in srgb, #f06b6b 18%, transparent);
+  }
+}
+
+/* Explicit overrides win over the media query (for a manual theme toggle). */
+:root[data-theme='light'] {
+  --surface: #f6f6f4;
+  --surface-2: #efeeeb;
+  --card: #ffffff;
+  --border: #e4e3dd;
+  --ink: #1f1e1c;
+  --muted: #6b6a65;
+  --faint: #98968f;
+  --accent: #1fae64;
+  --accent-strong: #178a4f;
+  --accent-2: #2ecc71;
+  --success: #1fae64;
+  --success-soft: color-mix(in srgb, #2ecc71 16%, transparent);
+  --warning: #d98a09;
+  --warning-soft: color-mix(in srgb, #f0a92a 20%, transparent);
+  --danger: #dc3545;
+  --danger-soft: color-mix(in srgb, #dc3545 15%, transparent);
+}
+
+:root[data-theme='dark'] {
+  --surface: #141513;
+  --surface-2: #1a1b18;
+  --card: #1d1e1a;
+  --border: #2c2d29;
+  --ink: #e8e7e0;
+  --muted: #a3a29b;
+  --faint: #7a7972;
+  --accent: #35d07f;
+  --accent-strong: #58dd97;
+  --accent-2: #2ecc71;
+  --success: #35d07f;
+  --success-soft: color-mix(in srgb, #2ecc71 22%, transparent);
+  --warning: #f0a92a;
+  --warning-soft: color-mix(in srgb, #f0a92a 22%, transparent);
+  --danger: #f06b6b;
+  --danger-soft: color-mix(in srgb, #f06b6b 18%, transparent);
+}
+
+/* Expose tokens as Tailwind color utilities (bg-surface, text-accent, …). */
+@theme inline {
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-2: var(--accent-2);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    background-color: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,46 @@
+---
+import '../styles/global.css';
+import { asset } from '../consts';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'CertUI — status page for your TLS certificates',
+  description = 'A tiny, self-hosted status page for the TLS certificates of the endpoints you track. See expiry at a glance, inspect the full certificate chain, TLS handshake and WHOIS. One Go binary, one Docker container, configured with a YAML file.',
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = asset('/favicon.svg');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href={asset('/favicon.svg')} />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="theme-color" content="#2ecc71" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+  </head>
+  <body class="min-h-screen antialiased">
+    <slot />
+  </body>
+</html>

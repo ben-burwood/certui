@@ -1,0 +1,340 @@
+---
+// An interactive recreation of the CertUI dashboard, rendered from the app's
+// identity. Endpoints are shown as an accordion: each row has a status badge and
+// expands to reveal the TLS handshake, the full peer-certificate chain and WHOIS.
+// Clicking a row opens it (one at a time, like the real app). Data is illustrative.
+
+type CertStatus = 'ok' | 'expired';
+
+interface PeerCert {
+  status: CertStatus;
+  countdown?: { days: number; hours: number; minutes: number };
+  notBefore: string;
+  notAfter: string;
+  subject: string;
+  issuer: string;
+  sigAlg: string;
+  pubKeyAlg: string;
+}
+
+interface Endpoint {
+  url: string;
+  address: string;
+  resolves: boolean;
+  badge: { type: 'success' | 'warning' | 'danger'; label: string };
+  tls: { version: string; handshake: string; resume: string; cipher: string } | null;
+  chain: PeerCert[];
+  whois: { registrar: string; nameServers: string[]; expiration: string } | null;
+}
+
+const endpoints: Endpoint[] = [
+  {
+    url: 'https://www.google.com',
+    address: '142.250.187.196',
+    resolves: true,
+    badge: { type: 'success', label: '62 Days Remaining' },
+    tls: { version: '772', handshake: 'Yes', resume: 'No', cipher: '4865' },
+    chain: [
+      {
+        status: 'ok',
+        countdown: { days: 62, hours: 4, minutes: 51 },
+        notBefore: '2025-08-11T08:22:14Z',
+        notAfter: '2025-11-07T09:16:03Z',
+        subject: 'CN=www.google.com',
+        issuer: 'CN=WR2,O=Google Trust Services,C=US',
+        sigAlg: 'SHA256-RSA',
+        pubKeyAlg: 'ECDSA',
+      },
+      {
+        status: 'ok',
+        countdown: { days: 999, hours: 2, minutes: 8 },
+        notBefore: '2023-12-13T09:00:00Z',
+        notAfter: '2029-02-20T14:00:00Z',
+        subject: 'CN=WR2,O=Google Trust Services,C=US',
+        issuer: 'CN=GTS Root R1,O=Google Trust Services LLC,C=US',
+        sigAlg: 'SHA256-RSA',
+        pubKeyAlg: 'RSA',
+      },
+    ],
+    whois: {
+      registrar: 'MarkMonitor Inc.',
+      nameServers: ['ns1.google.com', 'ns2.google.com', 'ns3.google.com', 'ns4.google.com'],
+      expiration: '2028-09-14T04:00:00Z',
+    },
+  },
+  {
+    url: 'https://www.github.com',
+    address: '140.82.121.3',
+    resolves: true,
+    badge: { type: 'success', label: '80 Days Remaining' },
+    tls: { version: '772', handshake: 'Yes', resume: 'No', cipher: '4865' },
+    chain: [
+      {
+        status: 'ok',
+        countdown: { days: 80, hours: 11, minutes: 27 },
+        notBefore: '2025-02-05T00:00:00Z',
+        notAfter: '2025-11-25T23:59:59Z',
+        subject: 'CN=github.com,O=GitHub\\, Inc.,L=San Francisco,ST=California,C=US',
+        issuer: 'CN=Sectigo ECC Domain Validation Secure Server CA,O=Sectigo Limited,C=GB',
+        sigAlg: 'SHA256-ECDSA',
+        pubKeyAlg: 'ECDSA',
+      },
+    ],
+    whois: {
+      registrar: 'MarkMonitor Inc.',
+      nameServers: ['dns1.p08.nsone.net', 'ns-1283.awsdns-32.org', 'ns-520.awsdns-01.net'],
+      expiration: '2026-10-09T18:20:50Z',
+    },
+  },
+  {
+    url: 'https://shop.example.com',
+    address: '203.0.113.24',
+    resolves: true,
+    badge: { type: 'warning', label: '12 Days Remaining' },
+    tls: { version: '771', handshake: 'Yes', resume: 'Yes', cipher: '49199' },
+    chain: [
+      {
+        status: 'ok',
+        countdown: { days: 12, hours: 6, minutes: 3 },
+        notBefore: '2025-06-19T00:00:00Z',
+        notAfter: '2025-09-18T23:59:59Z',
+        subject: 'CN=shop.example.com',
+        issuer: "CN=R11,O=Let's Encrypt,C=US",
+        sigAlg: 'SHA256-RSA',
+        pubKeyAlg: 'RSA',
+      },
+    ],
+    whois: {
+      registrar: 'Namecheap, Inc.',
+      nameServers: ['dns1.registrar-servers.com', 'dns2.registrar-servers.com'],
+      expiration: '2026-03-01T00:00:00Z',
+    },
+  },
+  {
+    url: 'https://expired.badssl.com',
+    address: '104.154.89.105',
+    resolves: true,
+    badge: { type: 'danger', label: 'Expired' },
+    tls: { version: '771', handshake: 'Yes', resume: 'No', cipher: '49199' },
+    chain: [
+      {
+        status: 'expired',
+        notBefore: '2015-04-09T00:00:00Z',
+        notAfter: '2015-04-12T23:59:59Z',
+        subject: 'CN=*.badssl.com,OU=Domain Control Validated+OU=PositiveSSL Wildcard',
+        issuer: 'CN=COMODO RSA Domain Validation Secure Server CA,O=COMODO CA Limited,L=Salford,ST=Greater Manchester,C=GB',
+        sigAlg: 'SHA256-RSA',
+        pubKeyAlg: 'RSA',
+      },
+      {
+        status: 'ok',
+        countdown: { days: 999, hours: 6, minutes: 12 },
+        notBefore: '2014-02-12T00:00:00Z',
+        notAfter: '2029-02-11T23:59:59Z',
+        subject: 'CN=COMODO RSA Domain Validation Secure Server CA,O=COMODO CA Limited,L=Salford,ST=Greater Manchester,C=GB',
+        issuer: 'CN=COMODO RSA Certification Authority,O=COMODO CA Limited,L=Salford,ST=Greater Manchester,C=GB',
+        sigAlg: 'SHA384-RSA',
+        pubKeyAlg: 'RSA',
+      },
+      {
+        status: 'expired',
+        notBefore: '2000-05-30T10:48:38Z',
+        notAfter: '2020-05-30T10:48:38Z',
+        subject: 'CN=COMODO RSA Certification Authority,O=COMODO CA Limited,L=Salford,ST=Greater Manchester,C=GB',
+        issuer: 'CN=AddTrust External CA Root,OU=AddTrust External TTP Network,O=AddTrust AB,C=SE',
+        sigAlg: 'SHA384-RSA',
+        pubKeyAlg: 'RSA',
+      },
+    ],
+    whois: {
+      registrar: 'DNStination Inc.',
+      nameServers: ['constance.ns.cloudflare.com', 'edward.ns.cloudflare.com'],
+      expiration: '2026-01-16T20:53:47Z',
+    },
+  },
+];
+
+const DEFAULT_OPEN = 0;
+
+const badgeClass = {
+  success: 'bg-success/15 text-success',
+  warning: 'bg-warning/15 text-warning',
+  danger: 'bg-danger/15 text-danger',
+} as const;
+---
+
+<div
+  id="mock"
+  class="mx-auto max-w-4xl overflow-hidden rounded-xl border border-border bg-card shadow-2xl shadow-black/10 ring-1 ring-black/5"
+>
+  <!-- Window chrome -->
+  <div class="flex items-center gap-2 border-b border-border bg-surface-2 px-4 py-3">
+    <div class="flex gap-1.5">
+      <span class="h-3 w-3 rounded-full bg-[#ec6a5e]"></span>
+      <span class="h-3 w-3 rounded-full bg-[#f4bf4f]"></span>
+      <span class="h-3 w-3 rounded-full bg-[#61c454]"></span>
+    </div>
+    <div class="mx-auto flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1 text-xs text-muted">
+      <svg class="h-3 w-3 text-faint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+      </svg>
+      localhost:8080
+    </div>
+  </div>
+
+  <!-- App body -->
+  <div class="bg-surface">
+    <!-- Navbar -->
+    <div class="flex items-center gap-3 border-b border-border bg-card px-4 py-3 sm:px-5">
+      <svg viewBox="0 0 64 64" class="h-7 w-7 text-accent" aria-hidden="true">
+        <circle cx="32" cy="24" r="12" fill="none" stroke="currentColor" stroke-width="4"></circle>
+        <path d="M26 36 L24 52 L32 46 L40 52 L38 36 Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"></path>
+        <path d="M26 24 L30 28 L38 20" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+      <span class="text-lg font-bold text-ink">CertUI</span>
+      <div class="flex-1"></div>
+      <button
+        type="button"
+        id="mock-refresh"
+        title="Force refresh (bypass cache)"
+        aria-label="Force refresh"
+        class="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted transition hover:bg-surface-2 hover:text-ink"
+      >
+        <svg id="mock-refresh-icon" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12a9 9 0 1 1-2.64-6.36"></path>
+          <path d="M21 3v6h-6"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Accordion -->
+    <div class="max-h-[26rem] space-y-3 overflow-y-auto p-4 sm:p-5">
+      {
+        endpoints.map((e, i) => (
+          <div class="mock-item overflow-hidden rounded-xl border border-border bg-card" data-index={i}>
+            <button
+              type="button"
+              class="mock-summary flex w-full flex-wrap items-center gap-2 px-4 py-3 text-left sm:gap-3"
+              aria-expanded={i === DEFAULT_OPEN ? 'true' : 'false'}
+            >
+              <span class="font-semibold text-ink">{e.url}</span>
+              <span class="text-sm text-muted">({e.address})</span>
+              <span class={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeClass[e.badge.type]}`}>
+                {e.badge.label}
+              </span>
+              <span class="flex-1"></span>
+              <svg class="mock-chevron h-4 w-4 shrink-0 text-faint transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m6 9 6 6 6-6"></path>
+              </svg>
+            </button>
+
+            <div class="mock-body border-t border-border px-4 py-4" hidden={i !== DEFAULT_OPEN}>
+              {/* TLS summary */}
+              {e.tls && (
+                <div class="flex flex-wrap gap-x-6 gap-y-1.5 text-sm">
+                  <span><strong class="text-ink">TLS Version:</strong> <span class="text-muted">{e.tls.version}</span></span>
+                  <span><strong class="text-ink">Handshake Complete:</strong> <span class="text-muted">{e.tls.handshake}</span></span>
+                  <span><strong class="text-ink">Did Resume:</strong> <span class="text-muted">{e.tls.resume}</span></span>
+                  <span><strong class="text-ink">Cipher Suite:</strong> <span class="text-muted">{e.tls.cipher}</span></span>
+                </div>
+              )}
+
+              {/* Peer certificates */}
+              <p class="mt-4 text-sm font-medium text-faint">Peer Certificates</p>
+              <div class="mt-2 divide-y divide-border/70">
+                {e.chain.map((c) => (
+                  <div class="py-4 first:pt-2">
+                    <div class="flex flex-wrap items-start gap-x-6 gap-y-2">
+                      <div class="min-w-[8rem]">
+                        {c.status === 'expired' ? (
+                          <span class="font-mono text-xl font-bold tracking-wide text-danger">EXPIRED</span>
+                        ) : (
+                          <span class="tabular flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-ink">
+                            <span><span class="text-xl font-bold">{c.countdown!.days}</span> <span class="text-xs text-muted">days</span></span>
+                            <span><span class="text-xl font-bold">{c.countdown!.hours}</span> <span class="text-xs text-muted">hours</span></span>
+                            <span><span class="text-xl font-bold">{c.countdown!.minutes}</span> <span class="text-xs text-muted">min</span></span>
+                          </span>
+                        )}
+                      </div>
+                      <div class="text-sm">
+                        <div><strong class="text-ink">Valid From:</strong> <span class="tabular text-muted">{c.notBefore}</span></div>
+                        <div><strong class="text-ink">Valid To:</strong> <span class="tabular text-muted">{c.notAfter}</span></div>
+                      </div>
+                    </div>
+                    <div class="mt-3 space-y-1 text-sm">
+                      <div class="break-words"><strong class="text-ink">Subject:</strong> <span class="text-muted">{c.subject}</span></div>
+                      <div class="break-words"><strong class="text-ink">Issuer:</strong> <span class="text-muted">{c.issuer}</span></div>
+                    </div>
+                    <div class="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+                      <span><strong class="text-ink">Signature Algorithm:</strong> <span class="text-muted">{c.sigAlg}</span></span>
+                      <span><strong class="text-ink">Public Key Algorithm:</strong> <span class="text-muted">{c.pubKeyAlg}</span></span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* WHOIS */}
+              {e.whois && (
+                <div class="mt-2 rounded-lg border border-border bg-surface-2/60 p-3 text-sm">
+                  <p class="text-xs font-medium text-faint">WHOIS</p>
+                  <div class="mt-2 space-y-1.5">
+                    <div><strong class="text-ink">Registrar:</strong> <span class="text-muted">{e.whois.registrar}</span></div>
+                    <div class="flex flex-wrap gap-x-2">
+                      <strong class="text-ink">Name Servers:</strong>
+                      <span class="flex flex-wrap gap-x-3 text-muted">
+                        {e.whois.nameServers.map((ns) => <span>{ns}</span>)}
+                      </span>
+                    </div>
+                    <div><strong class="text-ink">Expiration Date:</strong> <span class="tabular text-muted">{e.whois.expiration}</span></div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<script>
+  const root = document.getElementById('mock');
+  if (root) {
+    const items = Array.from(root.querySelectorAll<HTMLElement>('.mock-item'));
+
+    const setOpen = (item: HTMLElement, open: boolean) => {
+      const summary = item.querySelector<HTMLButtonElement>('.mock-summary');
+      const body = item.querySelector<HTMLElement>('.mock-body');
+      const chevron = item.querySelector<SVGElement>('.mock-chevron');
+      if (summary) summary.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (body) body.hidden = !open;
+      if (chevron) chevron.style.transform = open ? 'rotate(180deg)' : '';
+    };
+
+    items.forEach((item) => {
+      const summary = item.querySelector<HTMLButtonElement>('.mock-summary');
+      summary?.addEventListener('click', () => {
+        const isOpen = summary.getAttribute('aria-expanded') === 'true';
+        // Accordion: close everything, then open the clicked one if it was closed.
+        items.forEach((other) => setOpen(other, false));
+        if (!isOpen) setOpen(item, true);
+      });
+    });
+
+    // Refresh button — brief spin for a real feel.
+    const btn = root.querySelector<HTMLButtonElement>('#mock-refresh');
+    const icon = root.querySelector<SVGElement>('#mock-refresh-icon');
+    if (btn && icon) {
+      btn.addEventListener('click', () => {
+        if (btn.disabled) return;
+        btn.disabled = true;
+        icon.classList.add('animate-spin');
+        setTimeout(() => {
+          btn.disabled = false;
+          icon.classList.remove('animate-spin');
+        }, 1400);
+      });
+    }
+  }
+</script>
