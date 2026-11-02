@@ -18,6 +18,9 @@ const (
 	// DefaultConfigurationFilePath is the default path that will be used to search for the configuration file
 	// if a custom path isn't configured through the CERTUI_CONFIG_PATH environment variable
 	DefaultConfigurationFilePath = "config/config.yml"
+
+	// EndpointsEnvVar is the environment variable that can be used to configure endpoints as a comma-separated list
+	EndpointsEnvVar = "ENDPOINTS"
 )
 
 var (
@@ -32,8 +35,14 @@ type Config struct {
 	Endpoints []domain.Domain `yaml:"endpoints"`
 }
 
-// LoadConfig loads the configuration from the specified path. If the path is a directory, all .yml and .yaml files
+// LoadConfig loads the configuration from the ENDPOINTS environment variable if set, otherwise from the specified path.
+// If the path is a directory, all .yml and .yaml files
 func LoadConfig(configPath string) (*Config, error) {
+	if envEndpoints, ok := os.LookupEnv(EndpointsEnvVar); ok {
+		log.Printf("[config.LoadConfiguration] Reading configuration from %s environment variable", EndpointsEnvVar)
+		return parseEndpointsEnv(envEndpoints)
+	}
+
 	var fileInfo os.FileInfo
 	var usedConfigPath string
 	for _, configurationPath := range []string{configPath, DefaultConfigurationFilePath} {
@@ -91,6 +100,20 @@ func LoadConfig(configPath string) (*Config, error) {
 		return nil, fmt.Errorf("error parsing config: %w", err)
 	}
 
+	return config, nil
+}
+
+// parseEndpointsEnv parses a comma-separated list of endpoints into a Config struct
+func parseEndpointsEnv(value string) (*Config, error) {
+	config := &Config{}
+	for _, endpoint := range strings.Split(value, ",") {
+		if endpoint = strings.TrimSpace(endpoint); len(endpoint) > 0 {
+			config.Endpoints = append(config.Endpoints, domain.Domain(endpoint))
+		}
+	}
+	if len(config.Endpoints) == 0 {
+		return nil, ErrNoEndpointsInConfig
+	}
 	return config, nil
 }
 
