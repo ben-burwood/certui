@@ -31,7 +31,12 @@ const config = [
   {
     name: 'endpoints',
     def: '(required)',
-    desc: 'YAML list of the URLs to track. Supports ${ENV_VAR} expansion; use $$ for a literal $.',
+    desc: 'YAML list of the URLs to track. Supports ${ENV_VAR} expansion; use $ for a literal $.',
+  },
+  {
+    name: 'ENDPOINTS',
+    def: '(unset)',
+    desc: 'Comma-separated list of URLs to track. When set, it takes precedence and no config file is needed.',
   },
 ];
 ---
@@ -41,7 +46,8 @@ const config = [
     <div class="mx-auto max-w-2xl text-center">
       <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Install CertUI</h2>
       <p class="mt-4 text-lg text-muted">
-        Drop two files next to each other and bring it up. No database, no auth, no fuss.
+        Free and open source. One tiny multi-arch Docker image for amd64 and arm64 — drop two files next to each
+        other and bring it up. No database, no auth, no fuss.
       </p>
     </div>
 

@@ -4,7 +4,7 @@ const REPO_NAME = 'certui';
 
 export const REPO_URL = `https://github.com/${REPO_OWNER}/${REPO_NAME}`;
 export const RELEASES_URL = `${REPO_URL}/releases`;
-export const LICENSE_URL = `${REPO_URL}/blob/main/LICENSE`;
+export const LICENSE_URL = `${REPO_URL}/blob/main/LICENCE`;
 export const README_URL = `${REPO_URL}#readme`;
 
 export const DOCKER_IMAGE = `ghcr.io/${REPO_OWNER}/${REPO_NAME}:latest`;

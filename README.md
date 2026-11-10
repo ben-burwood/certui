@@ -1,4 +1,8 @@
-# Certificate Status Page
+# CertUI — Certificate Status Page
+
+https://ben-burwood.github.io/certui/
+
+A tiny, **self-hosted SSL/TLS certificate status page** — see certificate expiry, the full chain, TLS handshake and WHOIS for every endpoint you track. A single Go binary in one Docker container (amd64 & arm64).
 
 This go WebApp is designed to be simple.
 
