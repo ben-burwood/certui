@@ -36,10 +36,11 @@ import WindowMock from './WindowMock.astro';
       </h1>
 
       <p class="mx-auto mt-5 max-w-2xl text-pretty text-lg text-muted sm:text-xl">
-        CertUI is a tiny, self-hosted status page for the certificates of the
-        endpoints you track. See expiry <span class="text-ink">at a glance</span>,
+        CertUI is a tiny, self-hosted status page for the SSL/TLS certificates of the
+        endpoints you track. See certificate expiry <span class="text-ink">at a glance</span>,
         then expand any endpoint for its full <span class="text-ink">certificate
-        chain</span>, TLS handshake, domain resolution and WHOIS. go Binary, declaratively configured with a <span class="text-ink">YAML file</span>.
+        chain</span>, TLS handshake, domain resolution and WHOIS. A single Go binary in one Docker
+        container, configured with a <span class="text-ink">YAML file</span> or environment variables.
       </p>
 
       <div class="mt-8 flex flex-wrap items-center justify-center gap-3">

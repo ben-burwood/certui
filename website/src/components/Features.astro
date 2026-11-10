@@ -27,6 +27,11 @@ const features = [
     title: 'WHOIS lookup',
     body: 'Surfaces the registrar, name servers and domain expiration date — because a domain lapsing is just as bad as a certificate lapsing.',
   },
+  {
+    icon: 'heroicons:signal',
+    title: 'Protocol support',
+    body: 'Probes which TLS protocol versions and HTTP versions each endpoint supports, so legacy TLS or a missing HTTP/2 is easy to spot.',
+  },
 ];
 
 const scope = [
@@ -39,9 +44,10 @@ const scope = [
 <section id="features" class="scroll-mt-20 border-t border-border/70 bg-surface-2/50">
   <div class="mx-auto max-w-6xl px-5 py-16 sm:py-20">
     <div class="mx-auto max-w-4xl text-center">
-      <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Everything you need to watch your certificates</h2>
+      <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Everything you need to watch your SSL certificates</h2>
       <p class="mt-4 text-lg text-muted">
-        Purpose-built to do one job well: show the state of your TLS certificates, simply.
+        A certificate expiry dashboard purpose-built to do one job well: show the state of your SSL/TLS
+        certificates, simply.
       </p>
     </div>
 

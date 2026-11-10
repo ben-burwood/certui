@@ -1,19 +1,41 @@
 ---
 import '../styles/global.css';
-import { asset } from '../consts';
+import interWoff2 from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import { REPO_URL, RELEASES_URL, LICENSE_URL, asset } from '../consts';
 
 interface Props {
   title?: string;
   description?: string;
+  /** Keep the page out of search results (e.g. the 404 page). */
+  noindex?: boolean;
 }
 
 const {
-  title = 'CertUI — status page for your TLS certificates',
-  description = 'A tiny, self-hosted status page for the TLS certificates of the endpoints you track. See expiry at a glance, inspect the full certificate chain, TLS handshake and WHOIS. One Go binary, one Docker container, configured with a YAML file.',
+  title = 'CertUI — self-hosted SSL/TLS certificate expiry dashboard',
+  description = 'Free, self-hosted status page for SSL/TLS certificate expiry. Inspect the certificate chain, TLS handshake and WHOIS for every endpoint — one Docker container.',
+  noindex = false,
 } = Astro.props;
 
-const canonical = new URL(Astro.url.pathname, Astro.site).href;
-const ogImage = asset('/favicon.svg');
+const site = Astro.site ?? 'https://ben-burwood.github.io';
+// GitHub Pages redirects `/certui` → `/certui/`, so canonicalise to the trailing-slash form.
+const canonical = new URL(Astro.url.pathname.replace(/\/?$/, '/'), site).href;
+const ogImage = new URL(asset('/og.png'), site).href;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'CertUI',
+  description,
+  url: canonical,
+  image: ogImage,
+  applicationCategory: 'SecurityApplication',
+  operatingSystem: 'Linux, Docker',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  license: LICENSE_URL,
+  downloadUrl: RELEASES_URL,
+  sameAs: [REPO_URL],
+  author: { '@type': 'Person', name: 'Ben Burwood' },
+};
 ---
 
 <!doctype html>
@@ -21,24 +43,35 @@ const ogImage = asset('/favicon.svg');
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href={asset('/favicon.svg')} />
+    <link rel="icon" type="image/png" sizes="96x96" href={asset('/favicon-96x96.png')} />
+    <link rel="apple-touch-icon" href={asset('/apple-touch-icon.png')} />
+    <link rel="preload" href={interWoff2} as="font" type="font/woff2" crossorigin />
+
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
-    <link rel="icon" type="image/svg+xml" href={asset('/favicon.svg')} />
-    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#2ecc71" />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
 
-    <!-- Open Graph -->
+    <!-- Open Graph / social -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CertUI" />
+    <meta property="og:locale" content="en_GB" />
+    <meta property="og:url" content={canonical} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
-    <meta name="theme-color" content="#2ecc71" />
-
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="CertUI — self-hosted SSL/TLS certificate expiry dashboard" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    {!noindex && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
   </head>
   <body class="min-h-screen antialiased">
     <slot />
