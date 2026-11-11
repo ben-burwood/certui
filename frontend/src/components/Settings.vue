@@ -1,6 +1,12 @@
 <template>
-    <div id="theme-switcher" class="fixed bottom-4 left-4 z-50">
-        <div class="flex items-center bg-base-100/95 backdrop-blur-sm border border-base-300 rounded-full shadow-md p-1">
+    <div id="settings" class="fixed bottom-4 left-4 z-50">
+        <div class="flex items-center gap-1 bg-base-100/95 backdrop-blur-sm border border-base-300 rounded-full shadow-md p-1">
+            <RefreshInterval @refresh="$emit('refresh')" />
+
+            <!-- divider -->
+            <div class="h-5 w-px bg-base-300" />
+
+            <!-- theme toggle -->
             <div class="relative group">
                 <button
                     type="button"
@@ -60,6 +66,9 @@
 <script setup lang="ts">
 import { themeChange } from "theme-change";
 import { onMounted, onUnmounted, ref } from "vue";
+import RefreshInterval from "./RefreshInterval.vue";
+
+defineEmits<{ refresh: [] }>();
 
 const isDark = () => document.documentElement.getAttribute("data-theme") === "dark";
 
@@ -92,15 +101,15 @@ onUnmounted(() => {
     }
 }
 
-#theme-switcher {
+#settings {
     animation: slideIn 0.3s ease-out;
 }
 
-#theme-switcher > div {
+#settings > div {
     transition: all 0.2s ease;
 }
 
-#theme-switcher > div:hover {
+#settings > div:hover {
     transform: translateY(-2px);
     box-shadow:
         0 10px 25px -5px rgb(0 0 0 / 0.1),

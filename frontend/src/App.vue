@@ -85,13 +85,13 @@
             </div>
         </footer>
 
-        <ThemeSwitcher />
+        <Settings @refresh="loadEndpoints(true)" />
         <Social />
     </div>
 </template>
 
 <script setup lang="ts">
-import ThemeSwitcher from "./components/ThemeSwitcher.vue";
+import Settings from "./components/Settings.vue";
 import Social from "./components/Social.vue";
 import EndpointCard from "@/components/EndpointCard.vue";
 import { SERVER_URL } from "@/main";
