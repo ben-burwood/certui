@@ -1,26 +1,109 @@
 <template>
-    <button type="button" class="swap swap-rotate" aria-label="Toggle theme" data-toggle-theme="dark,light" data-act-class="swap-active">
-        <!-- sun icon -->
-        <svg class="swap-off h-8 w-8 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path
-                d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,18.36l.71.71a1,1,0,0,0,1.41,0,1,1,0,0,0,0-1.41ZM12,6.5A5.5,5.5,0,1,0,17.5,12,5.51,5.51,0,0,0,12,6.5Zm0,9A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z"
-            />
-        </svg>
+    <div id="theme-switcher" class="fixed bottom-4 left-4 z-50">
+        <div class="flex items-center bg-base-100/95 backdrop-blur-sm border border-base-300 rounded-full shadow-md p-1">
+            <div class="relative group">
+                <button
+                    type="button"
+                    class="swap swap-rotate p-1.5 rounded-full hover:bg-base-200 transition-colors"
+                    :aria-label="darkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+                    data-toggle-theme="dark,light"
+                    data-act-class="swap-active"
+                >
+                    <!-- sun icon (shown in dark mode) -->
+                    <svg
+                        class="swap-on h-3.5 w-3.5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <circle cx="12" cy="12" r="4" />
+                        <path d="M12 2v2" />
+                        <path d="M12 20v2" />
+                        <path d="m4.93 4.93 1.41 1.41" />
+                        <path d="m17.66 17.66 1.41 1.41" />
+                        <path d="M2 12h2" />
+                        <path d="M20 12h2" />
+                        <path d="m6.34 17.66-1.41 1.41" />
+                        <path d="m19.07 4.93-1.41 1.41" />
+                    </svg>
 
-        <!-- moon icon -->
-        <svg class="swap-on h-8 w-8 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path
-                d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z"
-            />
-        </svg>
-    </button>
+                    <!-- moon icon (shown in light mode) -->
+                    <svg
+                        class="swap-off h-3.5 w-3.5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                    </svg>
+                </button>
+
+                <!-- tooltip -->
+                <div
+                    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-base-100 border border-base-300 text-xs rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap"
+                >
+                    {{ darkMode ? "Light mode" : "Dark mode" }}
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script setup lang="ts">
 import { themeChange } from "theme-change";
-import { onMounted } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
+
+const isDark = () => document.documentElement.getAttribute("data-theme") === "dark";
+
+const darkMode = ref(isDark());
+
+// theme-change updates data-theme directly, so watch it to keep the tooltip in sync
+const observer = new MutationObserver(() => {
+    darkMode.value = isDark();
+});
 
 onMounted(() => {
     themeChange(false);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+});
+
+onUnmounted(() => {
+    observer.disconnect();
 });
 </script>
+
+<style scoped>
+@keyframes slideIn {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+#theme-switcher {
+    animation: slideIn 0.3s ease-out;
+}
+
+#theme-switcher > div {
+    transition: all 0.2s ease;
+}
+
+#theme-switcher > div:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 10px 25px -5px rgb(0 0 0 / 0.1),
+        0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+</style>
