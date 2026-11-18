@@ -2,6 +2,7 @@ package certificate
 
 import (
 	"certui/internal/domain"
+	"context"
 	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
@@ -20,6 +21,8 @@ type SSLDetails struct {
 	TLSProtocols      []TLSProtocolSupport
 	HTTPVersions      []HTTPVersionSupport
 	Validation        *ValidationMethod
+	CAA               *domain.CAAPolicy
+	CAAError          string // Set when the CAA lookup failed, distinguishing it from CAA being nil (no records)
 }
 
 type CertificateDetails struct {
@@ -93,8 +96,20 @@ func GetCertificateInfo(client *http.Client, address domain.Domain) (*SSLDetails
 		}()
 	}
 
+	dnsCtx, cancelDNS := context.WithCancel(context.Background())
+	defer cancelDNS()
+	var dnsRecords validationRecords
+	if host := addressDomainName(string(address)); host != "" {
+		probeWG.Add(1)
+		go func() {
+			defer probeWG.Done()
+			dnsRecords = lookupValidationRecords(dnsCtx, host, probeTimeout(client))
+		}()
+	}
+
 	resp, err := client.Get(string(address))
 	if err != nil {
+		cancelDNS() // Results are discarded, don't wait for the lookups
 		probeWG.Wait()
 		return nil, err
 	}
@@ -109,14 +124,17 @@ func GetCertificateInfo(client *http.Client, address domain.Domain) (*SSLDetails
 		sslInfo.PeerCertificates = append(sslInfo.PeerCertificates, newCertificateDetails(cert))
 	}
 
-	if len(resp.TLS.PeerCertificates) > 0 {
-		v := inferValidationMethod(resp.TLS.PeerCertificates[0], string(address), probeTimeout(client))
-		sslInfo.Validation = &v
-	}
-
 	probeWG.Wait()
 	sslInfo.TLSProtocols = probes
 	sslInfo.HTTPVersions = httpProbes
+	sslInfo.CAA = dnsRecords.caa
+	if dnsRecords.caaErr != nil {
+		sslInfo.CAAError = dnsRecords.caaErr.Error()
+	}
+	if len(resp.TLS.PeerCertificates) > 0 {
+		v := inferValidationMethod(resp.TLS.PeerCertificates[0], dnsRecords)
+		sslInfo.Validation = &v
+	}
 	return &sslInfo, nil
 }
 

@@ -35,3 +35,5 @@ Alternatively, set the `ENDPOINTS` environment variable to a comma-separated lis
 ```sh
 ENDPOINTS=https://www.google.com,https://www.github.com
 ```
+
+CAA and `_acme-challenge` records are queried using the first nameserver in `/etc/resolv.conf` (falling back to `1.1.1.1`). Set `CERTUI_DNS_SERVER` (e.g. `9.9.9.9` or `192.168.1.1:53`) to use a specific server.

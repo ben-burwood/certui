@@ -1,13 +1,14 @@
 package certificate
 
 import (
+	"certui/internal/domain"
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/hex"
 	"errors"
 	"net/http"
+	"strings"
 	"testing"
-	"time"
 )
 
 func TestGetCertificateInfo(t *testing.T) {
@@ -94,16 +95,80 @@ func TestGetCertificateInfo_Error(t *testing.T) {
 
 func TestInferValidationMethod_Wildcard(t *testing.T) {
 	leaf := &x509.Certificate{DNSNames: []string{"example.com", "*.example.com"}}
-	v := inferValidationMethod(leaf, "https://example.com", time.Second)
+	v := inferValidationMethod(leaf, validationRecords{})
 	if v.Method != MethodDNS || !v.Confirmed {
 		t.Errorf("Expected confirmed DNS-01 for wildcard, got %+v", v)
 	}
 }
 
 func TestInferValidationMethod_NoEvidence(t *testing.T) {
-	leaf := &x509.Certificate{DNSNames: []string{"invalid.invalid"}}
-	v := inferValidationMethod(leaf, "https://invalid.invalid", time.Second)
+	leaf := &x509.Certificate{DNSNames: []string{"example.com"}}
+	v := inferValidationMethod(leaf, validationRecords{})
 	if v.Method != MethodHTTP || v.Confirmed {
 		t.Errorf("Expected unconfirmed HTTP-01, got %+v", v)
+	}
+}
+
+func TestInferValidationMethod_ACMEChallenge(t *testing.T) {
+	leaf := &x509.Certificate{DNSNames: []string{"example.com"}}
+	for _, challenge := range []domain.ACMEChallenge{{CNAME: "abc.auth.acme-dns.io"}, {HasTXT: true}} {
+		v := inferValidationMethod(leaf, validationRecords{challenge: challenge})
+		if v.Method != MethodDNS || v.Confirmed {
+			t.Errorf("Expected unconfirmed DNS-01 for %+v, got %+v", challenge, v)
+		}
+	}
+}
+
+func TestInferValidationMethod_CAA(t *testing.T) {
+	leaf := &x509.Certificate{DNSNames: []string{"example.com"}}
+	tests := []struct {
+		name      string
+		issuers   []domain.CAAIssuer
+		method    string
+		confirmed bool
+	}{
+		{"dns only", []domain.CAAIssuer{{CA: "letsencrypt.org", ValidationMethods: []string{"dns-01"}}}, MethodDNS, true},
+		{"http only", []domain.CAAIssuer{{CA: "letsencrypt.org", ValidationMethods: []string{"http-01"}}}, MethodHTTP, true},
+		{"multiple methods", []domain.CAAIssuer{{CA: "letsencrypt.org", ValidationMethods: []string{"dns-01", "http-01"}}}, MethodHTTP, false},
+		{"unrestricted issuer", []domain.CAAIssuer{
+			{CA: "letsencrypt.org", ValidationMethods: []string{"dns-01"}},
+			{CA: "sectigo.com"},
+		}, MethodHTTP, false},
+		{"deny issuer ignored", []domain.CAAIssuer{
+			{CA: "letsencrypt.org", ValidationMethods: []string{"dns-01"}},
+			{CA: ""},
+		}, MethodDNS, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			caa := &domain.CAAPolicy{Domain: "example.com", Issuers: tt.issuers}
+			v := inferValidationMethod(leaf, validationRecords{caa: caa})
+			if v.Method != tt.method || v.Confirmed != tt.confirmed {
+				t.Errorf("Expected %s (confirmed=%v), got %+v", tt.method, tt.confirmed, v)
+			}
+		})
+	}
+}
+
+func TestInferValidationMethod_CAAError(t *testing.T) {
+	leaf := &x509.Certificate{DNSNames: []string{"example.com"}}
+	v := inferValidationMethod(leaf, validationRecords{caaErr: errors.New("timeout")})
+	if v.Method != MethodHTTP || v.Confirmed || !strings.Contains(v.Reason, "CAA lookup failed") {
+		t.Errorf("Expected unconfirmed HTTP-01 noting the CAA failure, got %+v", v)
+	}
+}
+
+func TestAddressDomainName(t *testing.T) {
+	tests := map[string]string{
+		"https://www.example.com":     "www.example.com",
+		"https://example.com.:8443/x": "example.com",
+		"https://192.168.1.10":        "",
+		"https://[2001:db8::1]:443":   "",
+		"https://localhost":           "",
+	}
+	for address, want := range tests {
+		if got := addressDomainName(address); got != want {
+			t.Errorf("addressDomainName(%q) = %q, want %q", address, got, want)
+		}
 	}
 }

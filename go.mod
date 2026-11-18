@@ -1,8 +1,9 @@
 module certui
 
-go 1.26.0
+go 1.27.0
 
 require (
+	codeberg.org/miekg/dns v0.6.134
 	github.com/TwiN/deepmerge v0.2.2
 	github.com/google/yamlfmt v0.21.0
 	github.com/likexian/whois v1.15.7
