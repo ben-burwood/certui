@@ -27,10 +27,8 @@ const (
 //   - An _acme-challenge CNAME (delegation) or TXT record indicates DNS-01.
 //   - Otherwise HTTP-01 is assumed.
 func inferValidationMethod(leaf *x509.Certificate, address string, timeout time.Duration) ValidationMethod {
-	for _, name := range leaf.DNSNames {
-		if strings.HasPrefix(name, "*.") {
-			return ValidationMethod{Method: MethodDNS, Confirmed: true, Reason: "Wildcard certificate (" + name + ") requires DNS-01"}
-		}
+	if name := wildcardName(leaf); name != "" {
+		return ValidationMethod{Method: MethodDNS, Confirmed: true, Reason: "Wildcard certificate (" + name + ") requires DNS-01"}
 	}
 
 	if host := addressHostname(address); host != "" {

@@ -2,8 +2,12 @@ package certificate
 
 import (
 	"certui/internal/domain"
+	"crypto/sha256"
 	"crypto/tls"
+	"crypto/x509"
+	"encoding/hex"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 )
@@ -25,6 +29,35 @@ type CertificateDetails struct {
 	NotAfter           time.Time
 	SignatureAlgorithm string
 	PublicKeyAlgorithm string
+	DNSNames           []string
+	Fingerprint        string // SHA-256 of the DER-encoded certificate, hex-encoded
+	IsWildcard         bool
+}
+
+// newCertificateDetails converts an x509 Certificate into CertificateDetails
+func newCertificateDetails(cert *x509.Certificate) CertificateDetails {
+	fingerprint := sha256.Sum256(cert.Raw)
+	return CertificateDetails{
+		Subject:            cert.Subject.String(),
+		Issuer:             cert.Issuer.String(),
+		NotBefore:          cert.NotBefore,
+		NotAfter:           cert.NotAfter,
+		SignatureAlgorithm: cert.SignatureAlgorithm.String(),
+		PublicKeyAlgorithm: cert.PublicKeyAlgorithm.String(),
+		DNSNames:           cert.DNSNames,
+		Fingerprint:        hex.EncodeToString(fingerprint[:]),
+		IsWildcard:         wildcardName(cert) != "",
+	}
+}
+
+// wildcardName returns the first wildcard SAN on the certificate, or "" if there is none
+func wildcardName(cert *x509.Certificate) string {
+	for _, name := range cert.DNSNames {
+		if strings.HasPrefix(name, "*.") {
+			return name
+		}
+	}
+	return ""
 }
 
 // IsExpired checks if the first certificate in the SSLDetails is expired
@@ -73,14 +106,7 @@ func GetCertificateInfo(client *http.Client, address domain.Domain) (*SSLDetails
 		CipherSuite:       resp.TLS.CipherSuite,
 	}
 	for _, cert := range resp.TLS.PeerCertificates {
-		sslInfo.PeerCertificates = append(sslInfo.PeerCertificates, CertificateDetails{
-			Subject:            cert.Subject.String(),
-			Issuer:             cert.Issuer.String(),
-			NotBefore:          cert.NotBefore,
-			NotAfter:           cert.NotAfter,
-			SignatureAlgorithm: cert.SignatureAlgorithm.String(),
-			PublicKeyAlgorithm: cert.PublicKeyAlgorithm.String(),
-		})
+		sslInfo.PeerCertificates = append(sslInfo.PeerCertificates, newCertificateDetails(cert))
 	}
 
 	if len(resp.TLS.PeerCertificates) > 0 {

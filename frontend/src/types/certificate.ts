@@ -6,6 +6,9 @@ export interface CertificateDetails {
   NotAfter: string;  // ISO date string
   SignatureAlgorithm: string;
   PublicKeyAlgorithm: string;
+  DNSNames: string[] | null;
+  Fingerprint: string; // SHA-256, hex-encoded
+  IsWildcard: boolean;
 }
 
 export interface TLSProtocolSupport {

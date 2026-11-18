@@ -9,8 +9,24 @@
             </div>
         </div>
 
-        <p><strong>Subject:</strong> {{ certificate.Subject }}</p>
+        <p class="flex items-center gap-2">
+            <span><strong>Subject:</strong> {{ certificate.Subject }}</span>
+            <span v-if="certificate.IsWildcard" class="badge badge-secondary">Wildcard</span>
+        </p>
         <p><strong>Issuer:</strong> {{ certificate.Issuer }}</p>
+
+        <div v-if="certificate.DNSNames?.length" class="mt-2">
+            <p class="flex items-center gap-2">
+                <strong>Subject Alternative Names:</strong>
+                <span class="flex flex-wrap gap-2">
+                    <span v-for="name in certificate.DNSNames" :key="name" class="badge badge-outline">
+                        {{ name }}
+                    </span>
+                </span>
+            </p>
+        </div>
+
+        <p class="mt-2 break-all"><strong>SHA-256 Fingerprint:</strong> <code>{{ certificate.Fingerprint }}</code></p>
 
         <div class="mt-2 flex flex-wrap gap-4">
             <p><strong>Signature Algorithm:</strong> {{ certificate.SignatureAlgorithm }}</p>

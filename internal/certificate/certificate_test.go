@@ -1,7 +1,9 @@
 package certificate
 
 import (
+	"crypto/sha256"
 	"crypto/x509"
+	"encoding/hex"
 	"errors"
 	"net/http"
 	"testing"
@@ -51,6 +53,31 @@ func TestGetCertificateInfo(t *testing.T) {
 	}
 	if cert.PublicKeyAlgorithm == "" {
 		t.Error("Expected non-empty PublicKeyAlgorithm")
+	}
+	if len(cert.DNSNames) == 0 {
+		t.Error("Expected at least one DNSName")
+	}
+	if len(cert.Fingerprint) != 64 {
+		t.Errorf("Expected 64-character SHA-256 Fingerprint, got %q", cert.Fingerprint)
+	}
+}
+
+func TestNewCertificateDetails_Wildcard(t *testing.T) {
+	raw := []byte("raw")
+	cert := newCertificateDetails(&x509.Certificate{Raw: raw, DNSNames: []string{"example.com", "*.example.com"}})
+	if !cert.IsWildcard {
+		t.Error("Expected IsWildcard to be true")
+	}
+	sum := sha256.Sum256(raw)
+	if want := hex.EncodeToString(sum[:]); cert.Fingerprint != want {
+		t.Errorf("Expected Fingerprint %q, got %q", want, cert.Fingerprint)
+	}
+}
+
+func TestNewCertificateDetails_NotWildcard(t *testing.T) {
+	cert := newCertificateDetails(&x509.Certificate{DNSNames: []string{"example.com", "www.example.com"}})
+	if cert.IsWildcard {
+		t.Error("Expected IsWildcard to be false")
 	}
 }
 

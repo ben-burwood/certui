@@ -1,7 +1,8 @@
 ---
 // An interactive recreation of the CertUI dashboard, rendered from the app's
 // identity. Endpoints are shown as an accordion: each row has a status badge and
-// expands to reveal the TLS handshake, the full peer-certificate chain and WHOIS.
+// expands to reveal the TLS handshake, the inferred ACME challenge, the full
+// peer-certificate chain (with SANs, fingerprint and wildcard badge) and WHOIS.
 // Clicking a row opens it (one at a time, like the real app). Data is illustrative.
 
 type CertStatus = 'ok' | 'expired';
@@ -15,6 +16,15 @@ interface PeerCert {
   issuer: string;
   sigAlg: string;
   pubKeyAlg: string;
+  sans?: string[];
+  fingerprint: string;
+  wildcard?: boolean;
+}
+
+interface Validation {
+  method: 'DNS-01' | 'HTTP-01';
+  confirmed: boolean;
+  reason: string;
 }
 
 interface Endpoint {
@@ -23,6 +33,7 @@ interface Endpoint {
   resolves: boolean;
   badge: { type: 'success' | 'warning' | 'danger'; label: string };
   tls: { version: string; handshake: string; resume: string; cipher: string } | null;
+  validation: Validation | null;
   chain: PeerCert[];
   whois: { registrar: string; nameServers: string[]; expiration: string } | null;
 }
@@ -34,6 +45,7 @@ const endpoints: Endpoint[] = [
     resolves: true,
     badge: { type: 'success', label: '62 Days Remaining' },
     tls: { version: '772', handshake: 'Yes', resume: 'No', cipher: '4865' },
+    validation: { method: 'HTTP-01', confirmed: false, reason: 'No wildcard or _acme-challenge record found' },
     chain: [
       {
         status: 'ok',
@@ -44,6 +56,8 @@ const endpoints: Endpoint[] = [
         issuer: 'CN=WR2,O=Google Trust Services,C=US',
         sigAlg: 'SHA256-RSA',
         pubKeyAlg: 'ECDSA',
+        sans: ['www.google.com'],
+        fingerprint: '00afdb9f46b39ccdd0088aa5f9d6ffd36c7b8c5741ea5087e5ee63d2ab23d53b',
       },
       {
         status: 'ok',
@@ -54,6 +68,7 @@ const endpoints: Endpoint[] = [
         issuer: 'CN=GTS Root R1,O=Google Trust Services LLC,C=US',
         sigAlg: 'SHA256-RSA',
         pubKeyAlg: 'RSA',
+        fingerprint: '543b9d31ed2ab78dd0d737f70a1ff4253d493dd280d1fff404535aa5879f95fd',
       },
     ],
     whois: {
@@ -68,6 +83,7 @@ const endpoints: Endpoint[] = [
     resolves: true,
     badge: { type: 'success', label: '80 Days Remaining' },
     tls: { version: '772', handshake: 'Yes', resume: 'No', cipher: '4865' },
+    validation: { method: 'HTTP-01', confirmed: false, reason: 'No wildcard or _acme-challenge record found' },
     chain: [
       {
         status: 'ok',
@@ -78,6 +94,8 @@ const endpoints: Endpoint[] = [
         issuer: 'CN=Sectigo ECC Domain Validation Secure Server CA,O=Sectigo Limited,C=GB',
         sigAlg: 'SHA256-ECDSA',
         pubKeyAlg: 'ECDSA',
+        sans: ['github.com', 'www.github.com'],
+        fingerprint: 'a0d844431890104652f2ff55406c712746cc9a7cfadc495d717cf30328c4eb7c',
       },
     ],
     whois: {
@@ -92,6 +110,11 @@ const endpoints: Endpoint[] = [
     resolves: true,
     badge: { type: 'warning', label: '12 Days Remaining' },
     tls: { version: '771', handshake: 'Yes', resume: 'Yes', cipher: '49199' },
+    validation: {
+      method: 'DNS-01',
+      confirmed: false,
+      reason: '_acme-challenge.shop.example.com is delegated via CNAME to shop.acme-dns.example.net',
+    },
     chain: [
       {
         status: 'ok',
@@ -102,6 +125,8 @@ const endpoints: Endpoint[] = [
         issuer: "CN=R11,O=Let's Encrypt,C=US",
         sigAlg: 'SHA256-RSA',
         pubKeyAlg: 'RSA',
+        sans: ['shop.example.com'],
+        fingerprint: 'db41368fe6eafc36913ec2042f96988aae66fa5ab5b96ebb8605106a7065dc1e',
       },
     ],
     whois: {
@@ -116,15 +141,19 @@ const endpoints: Endpoint[] = [
     resolves: true,
     badge: { type: 'danger', label: 'Expired' },
     tls: { version: '771', handshake: 'Yes', resume: 'No', cipher: '49199' },
+    validation: { method: 'DNS-01', confirmed: true, reason: 'Wildcard certificate (*.badssl.com) requires DNS-01' },
     chain: [
       {
         status: 'expired',
         notBefore: '2015-04-09T00:00:00Z',
         notAfter: '2015-04-12T23:59:59Z',
-        subject: 'CN=*.badssl.com,OU=Domain Control Validated+OU=PositiveSSL Wildcard',
+        subject: 'CN=*.badssl.com,OU=Domain Control Validated',
         issuer: 'CN=COMODO RSA Domain Validation Secure Server CA,O=COMODO CA Limited,L=Salford,ST=Greater Manchester,C=GB',
         sigAlg: 'SHA256-RSA',
         pubKeyAlg: 'RSA',
+        sans: ['*.badssl.com', 'badssl.com'],
+        fingerprint: '70bc2a6486684c4e6ef0c665dfd2b675c535c752423dd7a8797dd1d57cd4a51b',
+        wildcard: true,
       },
       {
         status: 'ok',
@@ -135,6 +164,7 @@ const endpoints: Endpoint[] = [
         issuer: 'CN=COMODO RSA Certification Authority,O=COMODO CA Limited,L=Salford,ST=Greater Manchester,C=GB',
         sigAlg: 'SHA384-RSA',
         pubKeyAlg: 'RSA',
+        fingerprint: '59ec4e7b17cbced16c68f500c0ba52ff3ffacf1f5ac0d11a9a09b1717724b185',
       },
       {
         status: 'expired',
@@ -144,6 +174,7 @@ const endpoints: Endpoint[] = [
         issuer: 'CN=AddTrust External CA Root,OU=AddTrust External TTP Network,O=AddTrust AB,C=SE',
         sigAlg: 'SHA384-RSA',
         pubKeyAlg: 'RSA',
+        fingerprint: 'f194341f66a1a68214c38a78d33568af011af9c1db45492ae7ca00c280cee388',
       },
     ],
     whois: {
@@ -160,6 +191,11 @@ const badgeClass = {
   success: 'bg-success/15 text-success',
   warning: 'bg-warning/15 text-warning',
   danger: 'bg-danger/15 text-danger',
+} as const;
+
+const validationClass = {
+  'DNS-01': 'bg-accent/15 text-accent-strong',
+  'HTTP-01': 'bg-surface-2 text-muted ring-1 ring-border',
 } as const;
 ---
 
@@ -240,6 +276,19 @@ const badgeClass = {
                 </div>
               )}
 
+              {/* ACME challenge (inferred) */}
+              {e.validation && (
+                <div class="mt-2 flex flex-wrap items-center gap-2 text-sm">
+                  <strong class="text-ink">Issued Via:</strong>
+                  <span
+                    class={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${validationClass[e.validation.method]}`}
+                    title={e.validation.reason}
+                  >
+                    {e.validation.method}{e.validation.confirmed ? '' : ' (likely)'}
+                  </span>
+                </div>
+              )}
+
               {/* Peer certificates */}
               <p class="mt-4 text-sm font-medium text-faint">Peer Certificates</p>
               <div class="mt-2 divide-y divide-border/70">
@@ -263,12 +312,28 @@ const badgeClass = {
                       </div>
                     </div>
                     <div class="mt-3 space-y-1 text-sm">
-                      <div class="break-words"><strong class="text-ink">Subject:</strong> <span class="text-muted">{c.subject}</span></div>
+                      <div class="break-words">
+                        <strong class="text-ink">Subject:</strong> <span class="text-muted">{c.subject}</span>
+                        {c.wildcard && (
+                          <span class="ml-1 rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-semibold text-accent-strong">Wildcard</span>
+                        )}
+                      </div>
                       <div class="break-words"><strong class="text-ink">Issuer:</strong> <span class="text-muted">{c.issuer}</span></div>
                     </div>
+                    {c.sans && c.sans.length > 0 && (
+                      <div class="mt-2 flex flex-wrap items-center gap-2 text-sm">
+                        <strong class="text-ink">Subject Alternative Names:</strong>
+                        {c.sans.map((name) => (
+                          <span class="rounded-full px-2.5 py-0.5 text-xs font-medium text-muted ring-1 ring-border">{name}</span>
+                        ))}
+                      </div>
+                    )}
                     <div class="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm">
                       <span><strong class="text-ink">Signature Algorithm:</strong> <span class="text-muted">{c.sigAlg}</span></span>
                       <span><strong class="text-ink">Public Key Algorithm:</strong> <span class="text-muted">{c.pubKeyAlg}</span></span>
+                    </div>
+                    <div class="mt-2 break-all text-sm">
+                      <strong class="text-ink">SHA-256 Fingerprint:</strong> <code class="font-mono text-xs text-muted">{c.fingerprint}</code>
                     </div>
                   </div>
                 ))}
