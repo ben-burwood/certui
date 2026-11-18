@@ -1,9 +1,11 @@
 package certificate
 
 import (
+	"crypto/x509"
 	"errors"
 	"net/http"
 	"testing"
+	"time"
 )
 
 func TestGetCertificateInfo(t *testing.T) {
@@ -60,5 +62,21 @@ func TestGetCertificateInfo_Error(t *testing.T) {
 	}
 	if !errors.Is(err, err) {
 		t.Error("Expected a network error")
+	}
+}
+
+func TestInferValidationMethod_Wildcard(t *testing.T) {
+	leaf := &x509.Certificate{DNSNames: []string{"example.com", "*.example.com"}}
+	v := inferValidationMethod(leaf, "https://example.com", time.Second)
+	if v.Method != MethodDNS || !v.Confirmed {
+		t.Errorf("Expected confirmed DNS-01 for wildcard, got %+v", v)
+	}
+}
+
+func TestInferValidationMethod_NoEvidence(t *testing.T) {
+	leaf := &x509.Certificate{DNSNames: []string{"invalid.invalid"}}
+	v := inferValidationMethod(leaf, "https://invalid.invalid", time.Second)
+	if v.Method != MethodHTTP || v.Confirmed {
+		t.Errorf("Expected unconfirmed HTTP-01, got %+v", v)
 	}
 }

@@ -18,6 +18,12 @@ export interface HTTPVersionSupport {
   Supported: boolean;
 }
 
+export interface ValidationMethod {
+  Method: "DNS-01" | "HTTP-01";
+  Confirmed: boolean; // false when inferred (certificates don't record their challenge type)
+  Reason: string;
+}
+
 export interface SSLDetails {
   HandshakeComplete: boolean;
   DidResume: boolean;
@@ -25,4 +31,5 @@ export interface SSLDetails {
   PeerCertificates: CertificateDetails[];
   TLSProtocols: TLSProtocolSupport[];
   HTTPVersions: HTTPVersionSupport[];
+  Validation: ValidationMethod | null;
 }

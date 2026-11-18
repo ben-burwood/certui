@@ -15,6 +15,7 @@ type SSLDetails struct {
 	PeerCertificates  []CertificateDetails
 	TLSProtocols      []TLSProtocolSupport
 	HTTPVersions      []HTTPVersionSupport
+	Validation        *ValidationMethod
 }
 
 type CertificateDetails struct {
@@ -80,6 +81,11 @@ func GetCertificateInfo(client *http.Client, address domain.Domain) (*SSLDetails
 			SignatureAlgorithm: cert.SignatureAlgorithm.String(),
 			PublicKeyAlgorithm: cert.PublicKeyAlgorithm.String(),
 		})
+	}
+
+	if len(resp.TLS.PeerCertificates) > 0 {
+		v := inferValidationMethod(resp.TLS.PeerCertificates[0], string(address), probeTimeout(client))
+		sslInfo.Validation = &v
 	}
 
 	probeWG.Wait()

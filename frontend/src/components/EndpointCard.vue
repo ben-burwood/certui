@@ -13,6 +13,17 @@
                 <p><strong>Cipher Suite:</strong> {{ ssl.CipherSuite }}</p>
             </div>
 
+            <div v-if="ssl.Validation" class="mt-2">
+                <p class="flex items-center gap-2">
+                    <strong>Issued Via:</strong>
+                    <span class="tooltip" :data-tip="ssl.Validation.Reason">
+                        <span class="badge" :class="ssl.Validation.Method === 'DNS-01' ? 'badge-secondary' : 'badge-accent'">
+                            {{ ssl.Validation.Method }}{{ ssl.Validation.Confirmed ? "" : " (likely)" }}
+                        </span>
+                    </span>
+                </p>
+            </div>
+
             <div v-if="tlsProtocols.length" class="mt-2">
                 <p class="flex items-center gap-2">
                     <strong>TLS Protocols:</strong>
